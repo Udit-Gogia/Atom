@@ -125,7 +125,10 @@ export default function UserProfile() {
             {Array.isArray(userInfo?.tag) &&
               userInfo?.tag.map((interest, index) => {
                 return (
-                  <p className="lg:mr-3 bg-zinc-200 text-md tracking-wide w-fit px-2 py-1 rounded-sm border-l-2 border-[#191919] my-2">
+                  <p
+                    key={index}
+                    className="lg:mr-3 bg-zinc-200 text-md tracking-wide w-fit px-2 py-1 rounded-sm border-l-2 border-[#191919] my-2"
+                  >
                     {interest}
                   </p>
                 );
