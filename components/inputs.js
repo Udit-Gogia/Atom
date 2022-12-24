@@ -3,6 +3,9 @@ import { useRef } from "react";
 import Image from "next/image";
 import { handleFileInput } from "./fileFunctions";
 import { checkPresence } from "./cards";
+import { Combobox, Transition } from "@headlessui/react";
+import { Fragment, useState } from "react";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 export const InputComponent = ({ label, Name, value, stateMng, type }) => {
   return (

@@ -65,10 +65,9 @@ export default function BasicInfo() {
         <h1 className="font-semibold tracking-wide text-xl text-center">
           Add Basic Info
         </h1>
-
         <div className="flex flex-col items-center gap-1">
           <Image
-            src={image}
+            src={currUserData.profile_pic_url || image}
             alt="icon-user"
             width="50"
             height="50"
@@ -76,6 +75,7 @@ export default function BasicInfo() {
           />
 
           <input
+            required
             style={{ display: "none" }}
             ref={inputRef}
             type="file"
@@ -85,76 +85,17 @@ export default function BasicInfo() {
           />
 
           <button
+            type="button  "
             className={`text-md p-1  text-[#404040] border-b-2 hover:border-primaryBlack border-white  `}
             onClick={() => inputRef.current.click()}
           >
             change profile pic
           </button>
         </div>
-
-        <InputComponent
-          Name="username"
-          label="username"
-          type="text"
-          value={currUserData.username}
-          stateMng={(e) =>
-            setCurrUserData((prev) => {
-              return { ...prev, username: e.target.value };
-            })
-          }
-        />
-
-        <div className="flex flex-col gap-2">
-          <p className="font-semibold text-lg tracking-wide ">Country</p>
-          <Select
-            onChange={(e) =>
-              setCurrUserData((prev) => {
-                return { ...prev, country: e.label };
-              })
-            }
-            id="countryselect"
-            instanceId={"selectCountry"}
-            name="country"
-            className="select"
-            options={countryList}
-            placeholder="Select your country"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <p className="font-semibold text-lg tracking-wide ">Designation</p>
-          <Select
-            id="designationselect"
-            onChange={(e) =>
-              setCurrUserData((prev) => {
-                return { ...prev, designation: e.label };
-              })
-            }
-            instanceId={"selectDesignation"}
-            name="designation"
-            className="select"
-            options={designationList}
-            placeholder="Select your designation"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <p className="font-semibold text-lg tracking-wide ">Interests</p>
-          <Select
-            id="interestselect"
-            instanceId={"selectInterest"}
-            closeMenuOnSelect={false}
-            onChange={(e) => setUserInterestTag(e)}
-            isMulti
-            name="interest"
-            className="basic-multi-select"
-            classNamePrefix="select"
-            options={interestList}
-            placeholder="Select your interests"
-          />
-        </div>
-
-        <button
-          className="AuthButton"
-          onClick={async () => {
+        <form
+          id="basic-info"
+          onSubmit={async (e) => {
+            e.preventDefault();
             userInterestTag.map((interest) => {
               currUserData.tag.push(interest.value);
             });
@@ -162,6 +103,7 @@ export default function BasicInfo() {
             if (image != IconUser) {
               currUserData.profile_pic_url = image;
             }
+            console.log(currUserData);
 
             const result = await updateUserDataFromApi(currUserData);
 
@@ -170,8 +112,61 @@ export default function BasicInfo() {
             }
           }}
         >
-          Continue
-        </button>
+          <InputComponent
+            Name="username"
+            label="username"
+            type="text"
+            value={currUserData.username}
+            stateMng={(e) =>
+              setCurrUserData((prev) => {
+                return { ...prev, username: e.target.value };
+              })
+            }
+          />
+
+          <div className="flex flex-col gap-2">
+            <p className="font-semibold text-lg tracking-wide ">Designation</p>
+            <Select
+              required
+              id="designationselect"
+              onChange={(e) =>
+                setCurrUserData((prev) => {
+                  return { ...prev, designation: e.label };
+                })
+              }
+              instanceId={"selectDesignation"}
+              name="designation"
+              className="select"
+              options={designationList}
+              placeholder="Select your designation"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="font-semibold text-lg tracking-wide ">Interests</p>
+            <Select
+              required
+              id="interestselect"
+              instanceId={"selectInterest"}
+              closeMenuOnSelect={false}
+              onChange={(e) => setUserInterestTag(e)}
+              isMulti
+              name="interest"
+              className="basic-multi-select"
+              classNamePrefix="select"
+              options={interestList}
+              placeholder="Select your interests"
+            />
+          </div>
+
+          <button
+            type="submit"
+            form="basic-info"
+            className="AuthButton"
+            onClick={async () => {}}
+          >
+            Continue
+          </button>
+        </form>
       </div>
     </div>
   );

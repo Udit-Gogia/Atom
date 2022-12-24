@@ -107,10 +107,12 @@ export function Signup() {
 }
 
 export function Login() {
+  const router = useRouter();
   const usernameRef = useRef();
   const passwordRef = useRef();
 
-  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <div className="flex flex-col mx-auto border-2 rounded-md p-8 sm:w-full my-8">
       <form className="flex flex-col gap-4">
@@ -151,9 +153,10 @@ export function Login() {
           className="AuthButton"
           onClick={async (e) => {
             e.preventDefault();
+
             const res = await loginUser(
-              username.current?.value,
-              username.current?.value
+              usernameRef.current.value,
+              passwordRef.current.value
             );
 
             if (res != undefined) {
@@ -161,12 +164,78 @@ export function Login() {
             }
           }}
         >
-          Login
+          SignUp
         </button>
+        <SignupModal
+          username={usernameRef.current?.value}
+          password={passwordRef.current?.value}
+          isOpen={isOpen}
+        />
       </form>
     </div>
   );
 }
+// export function Login() {
+//   const usernameRef = useRef();
+//   const passwordRef = useRef();
+
+//   const router = useRouter();
+//   return (
+//     <div className="flex flex-col mx-auto border-2 rounded-md p-8 sm:w-full my-8">
+//       <form className="flex flex-col gap-4">
+//         {/* username */}
+//         <div className="flex flex-col gap-2">
+//           <label
+//             htmlFor="username"
+//             className="font-semibold text-lg tracking-wide "
+//           >
+//             Username
+//           </label>
+//           <input
+//             type="text"
+//             name="username"
+//             ref={usernameRef}
+//             required
+//             className="border-2 rounded-md p-2  focus:outline-[#191919]"
+//           />
+//         </div>
+//         {/* password */}
+//         <div className="flex flex-col gap-2">
+//           <label
+//             htmlFor="password"
+//             className="font-semibold text-lg tracking-wide "
+//           >
+//             Password
+//           </label>
+//           <input
+//             type="password"
+//             name="password"
+//             ref={passwordRef}
+//             required
+//             className="border-2 rounded-md p-2  focus:outline-[#191919]"
+//           ></input>
+//         </div>
+
+//         <button
+//           className="AuthButton"
+//           onClick={async (e) => {
+//             e.preventDefault();
+//             const res = await loginUser(
+//               usernameRef.current?.value,
+//               passwordRef.current?.value
+//             );
+
+//             if (res != undefined) {
+//               router.push("/");
+//             }
+//           }}
+//         >
+//           Login
+//         </button>
+//       </form>
+//     </div>
+//   );
+// }
 
 export default function Auth() {
   const [showLogin, setShowLogin] = useState(true);

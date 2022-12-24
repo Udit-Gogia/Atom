@@ -29,10 +29,10 @@ export async function setUserDataObject(key, value) {
   localStorage.setItem("userData", JSON.stringify(userDataObject));
 }
 
-export async function updateUserDataObject(key, value) {
+export async function updateUserDataObject(dataObj) {
   const userDataObject = JSON.parse(localStorage.getItem("userData"));
-  userDataObject[key] = value;
-  localStorage.setItem("userData", JSON.stringify(userDataObject));
+  const newUserDataObject = { ...userDataObject, ...dataObj };
+  localStorage.setItem("userData", JSON.stringify(newUserDataObject));
 }
 
 export async function loginUser(username, password) {
