@@ -40,9 +40,7 @@ export function CompanyCard({ title, description, media, link, tags }) {
         <p className="text-3xl font-semibold tracking-wide">{title}</p>
       )}
 
-      {checkPresence(description) && (
-        <p className="text-md capitalize">{description}</p>
-      )}
+      {checkPresence(description) && <p className="text-md ">{description}</p>}
 
       {checkPresence(media) && (
         <Image
