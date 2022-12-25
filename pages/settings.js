@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import Sidebar from "../components/Sidebar";
+
 import {
   IconInfo,
   IconPolicy,
