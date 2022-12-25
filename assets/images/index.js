@@ -17,6 +17,7 @@ import IconTags from "./Atom/icon-tags.png";
 import IconUser from "./Atom/icon-user.png";
 import IconMenu from "./Atom/icon-menu.png";
 import IconDownload from "./Atom/icon-download.png";
+import IconSetting from "./Atom/icon-setting.png";
 
 //Sidebar icons
 
@@ -33,6 +34,7 @@ import IconMyProfile from "./Sidebar/icon-my-profile.png";
 import IconPolicy from "./Sidebar/icon-policy.png";
 import IconRating from "./Sidebar/icon-rating.png";
 import IconSuggestAFeature from "./Sidebar/icon-suggest-a-feature.png";
+import IconHub from "./Sidebar/icon-hub.png";
 
 //Atom icons
 
@@ -73,4 +75,6 @@ export {
   IconUser,
   IconMenu,
   IconDownload,
+  IconSetting,
+  IconHub,
 };

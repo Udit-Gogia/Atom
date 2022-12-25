@@ -135,6 +135,8 @@ export function PostCard({
   postCreatedAt,
   postLikeCount,
   postCommentCount,
+  bookmarkId,
+  postType,
 }) {
   const router = useRouter();
   const [likedStatus, setLikedStatus] = useState(verifyLikedPosts(postId));
@@ -218,6 +220,8 @@ export function PostCard({
               PostId={postId}
               createdById={createdById}
               profilePicUrl={createdByProfilePicUrl}
+              bookmarkId={bookmarkId ? bookmarkId : null}
+              postType={postType ? postType : null}
             />
           </section>
 

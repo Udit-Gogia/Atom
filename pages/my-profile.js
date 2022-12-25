@@ -14,7 +14,7 @@ export default function MyProfile() {
         {/* header starts*/}
         <div className="flex m-2 justify-between border-b-2 items-center">
           <p className="text-xl tracking-wide font-semibold pb-2 w-full ">
-            My Profile
+            My Profile Info
           </p>
           <div className="flex lg:h-10 pb-2">
             <button

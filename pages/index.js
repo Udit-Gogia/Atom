@@ -20,7 +20,6 @@ export default function Home() {
     setUsername(userDataObject?.userInfo?.username);
 
     if (
-      !userDataObject?.mandatory_check ||
       !(
         checkPresence(userDataObject?.userInfo.designation) &&
         checkPresence(userDataObject?.userInfo.country) &&
@@ -28,11 +27,13 @@ export default function Home() {
         checkPresence(userDataObject?.userInfo.profile_pic_url)
       )
     ) {
+      console.log("data is missing here");
       setIsOpen(true);
     } else {
+      console.log("data is not missing here");
       setIsOpen(false);
     }
-  });
+  }, []);
   const router = useRouter();
   const [activeOption, setActiveOption] = useState(0);
   return (

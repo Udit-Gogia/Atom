@@ -50,6 +50,19 @@ export async function loginUser(username, password) {
 
     const userInfo = await getUserDataFromApi();
     await setUserDataObject("userInfo", userInfo);
+
+    if (
+      checkPresence(userInfo.designation) &&
+      checkPresence(userInfo.country) &&
+      checkPresence(userInfo.tag) &&
+      checkPresence(userInfo.profile_pic_url)
+    ) {
+      console.log("data is missing");
+      setUserDataObject({ mandatory_check: true });
+    } else {
+      console.log("data is not missing");
+      setUserDataObject({ mandatory_check: false });
+    }
   }
 
   return validateRes(response, result);

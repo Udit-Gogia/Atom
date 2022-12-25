@@ -166,11 +166,6 @@ export function Login() {
         >
           SignUp
         </button>
-        <SignupModal
-          username={usernameRef.current?.value}
-          password={passwordRef.current?.value}
-          isOpen={isOpen}
-        />
       </form>
     </div>
   );

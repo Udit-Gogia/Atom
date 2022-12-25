@@ -1,5 +1,5 @@
 import { SidebarCard } from "./cards";
-import { IconFeed } from "../assets/images";
+import { IconFeed, IconHub, IconUser } from "../assets/images";
 import { useState } from "react";
 import { IconEdit, IconChat } from "../assets/images";
 const Sidebar = ({ selectedOption = 0 }) => {
@@ -11,8 +11,8 @@ const Sidebar = ({ selectedOption = 0 }) => {
       href: "/",
     },
     {
-      src: IconFeed,
-      alt: "icon-feed.png",
+      src: IconHub,
+      alt: "icon-hub.png",
       display: "Hub",
       href: "/tags",
     },
@@ -29,16 +29,10 @@ const Sidebar = ({ selectedOption = 0 }) => {
       href: "/my",
     },
     {
-      src: IconFeed,
-      alt: "icon-feed.png",
+      src: IconUser,
+      alt: "icon-profile.png",
       display: "Profile",
-      href: "/my",
-    },
-    {
-      src: IconFeed,
-      alt: "icon-feed.png",
-      display: "signout",
-      href: "/signout",
+      href: "/profile",
     },
   ];
   const [activeOption, setActiveOption] = useState(selectedOption);

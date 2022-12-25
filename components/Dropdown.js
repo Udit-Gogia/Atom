@@ -3,13 +3,17 @@ import { Menu, Transition, Dialog } from "@headlessui/react";
 import { IconMenu, IconUser } from "../assets/images";
 import Image from "next/image";
 import { validateRes } from "./authFunctions";
+import { useRouter } from "next/router";
 import {
   rateUser,
   reportUser,
   reportPost,
   bookmarkPost,
   blockUser,
+  deleteBookmark,
 } from "./postFunctions";
+import { checkPresence } from "./cards";
+import { alertUser } from "./Modals";
 
 export default function DropDown({
   id = null,
@@ -19,7 +23,9 @@ export default function DropDown({
   createdById = null,
   bookmarkId = null,
   PostId = null,
+  postType = null,
 }) {
+  const router = useRouter();
   let [isOpen, setIsOpen] = useState(false);
   const [rating, setRating] = useState(5);
   const [hover, setHover] = useState(5);
@@ -27,6 +33,25 @@ export default function DropDown({
   function cancelRating() {
     setRating(5);
     setHover(5);
+  }
+
+  function checkBookmarkPost() {
+    if (
+      checkPresence(postType) &&
+      checkPresence(bookmarkId) &&
+      postType === "bookmark"
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  function checkSelfPost() {
+    if (checkPresence(postType) && postType === "self") {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   return (
@@ -49,42 +74,82 @@ export default function DropDown({
           leaveTo="transform scale-95 opacity-0"
         >
           <Menu.Items className="absolute right-0 w-56 mt-2 p-1 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-lg outline-none">
-            <Menu.Item disabled={false}>
-              {({ active }) => (
-                <button
-                  className={`${
-                    active && "bg-neutral-100 underline"
-                  } w-full rounded-md p-2`}
-                  onClick={() => bookmarkPost(PostId)}
-                >
-                  Bookmark Post
-                </button>
-              )}
-            </Menu.Item>
-            <Menu.Item disabled={false}>
-              {({ active }) => (
-                <button
-                  className={`${
-                    active && "bg-neutral-100 underline"
-                  } w-full rounded-md p-2`}
-                  onClick={() => setIsOpen(true)}
-                >
-                  Rate User
-                </button>
-              )}
-            </Menu.Item>
-            <Menu.Item disabled={false}>
-              {({ active }) => (
-                <button
-                  className={`${
-                    active && "bg-neutral-100 underline"
-                  } w-full rounded-md p-2`}
-                  onClick={() => reportPost(PostId)}
-                >
-                  Report Post
-                </button>
-              )}
-            </Menu.Item>
+            {!checkBookmarkPost() && !checkSelfPost() && (
+              <Menu.Item disabled={false}>
+                {({ active }) => (
+                  <button
+                    className={`${
+                      active && "bg-neutral-100 underline"
+                    } w-full rounded-md p-2`}
+                    onClick={() => bookmarkPost(PostId)}
+                  >
+                    Bookmark Post
+                  </button>
+                )}
+              </Menu.Item>
+            )}
+            {!checkSelfPost() && (
+              <Menu.Item disabled={false}>
+                {({ active }) => (
+                  <button
+                    className={`${
+                      active && "bg-neutral-100 underline"
+                    } w-full rounded-md p-2`}
+                    onClick={() => setIsOpen(true)}
+                  >
+                    Rate User
+                  </button>
+                )}
+              </Menu.Item>
+            )}
+            {!checkSelfPost() && (
+              <Menu.Item disabled={false}>
+                {({ active }) => (
+                  <button
+                    className={`${
+                      active && "bg-neutral-100 underline"
+                    } w-full rounded-md p-2`}
+                    onClick={() => reportPost(PostId)}
+                  >
+                    Report Post
+                  </button>
+                )}
+              </Menu.Item>
+            )}
+
+            {checkBookmarkPost() && (
+              <Menu.Item disabled={false}>
+                {({ active }) => (
+                  <button
+                    className={`${
+                      active && "bg-neutral-100 underline"
+                    } w-full rounded-md p-2`}
+                    onClick={async () => {
+                      const { result } = await deleteBookmark(bookmarkId);
+                      if (result != undefined) {
+                        router.reload();
+                      }
+                    }}
+                  >
+                    Delete Bookmark
+                  </button>
+                )}
+              </Menu.Item>
+            )}
+            {checkSelfPost() && (
+              <Menu.Item disabled={false}>
+                {({ active }) => (
+                  <button
+                    className={`${
+                      active && "bg-neutral-100 underline"
+                    } w-full rounded-md p-2`}
+                    onClick={() => alertUser("Delete Post api will be called")}
+                  >
+                    delete post
+                  </button>
+                )}
+              </Menu.Item>
+            )}
           </Menu.Items>
         </Transition>
       </Menu>

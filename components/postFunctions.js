@@ -66,15 +66,16 @@ export async function likePost(post_id, token = null) {
 
 export async function bookmarkPost(post_id) {
   const { token } = await JSON.parse(localStorage.getItem("userData"));
-  await callApi(
+  const { result } = await callApi(
     "POST",
     "private/all/create-bookmark-post",
+    token,
     JSON.stringify({
       post_id,
     }),
-    token,
     "bookmark created successfully"
   );
+  return result;
 }
 
 export async function reportPost(post_id, reportCreatedById) {
@@ -113,16 +114,18 @@ export async function reportUser(reportingUserid, reportCreatedById = 1) {
 
 export async function deleteBookmark(bookmarkId) {
   const token = await JSON.parse(localStorage.getItem("userData"))?.token;
-  const res = await callApi(
+  const { result } = await callApi(
     "DELETE",
-    `private/self/delete-bookmark-post/${id}`,
+    `private/self/delete-bookmark-post/${bookmarkId}`,
     token,
     null,
     "bookmark deleted successfully"
   );
-  if (res?.status) {
+  if (result?.status) {
     window.location.reload();
   }
+
+  return result;
 }
 
 export async function rateUser(ratingToId, rating) {

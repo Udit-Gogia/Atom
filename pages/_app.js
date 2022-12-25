@@ -2,6 +2,8 @@ import "../styles/globals.css";
 import Header from "../components/Header";
 import sendDataToAtom from "../components/sendDataToAtom";
 import { useEffect } from "react";
+import { checkPresence } from "../components/cards";
+import { getUserDataObject } from "../components/authFunctions";
 export default function App({ Component, pageProps }) {
   useEffect(() => {
     sendDataToAtom("app-open");
@@ -15,6 +17,7 @@ export default function App({ Component, pageProps }) {
         column_fields: false,
         mandatory_check: false,
       };
+
       localStorage.setItem("userData", JSON.stringify(userData));
     }
   }, []);
