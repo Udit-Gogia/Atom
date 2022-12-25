@@ -34,6 +34,12 @@ const Sidebar = ({ selectedOption = 0 }) => {
       display: "Profile",
       href: "/my",
     },
+    {
+      src: IconFeed,
+      alt: "icon-feed.png",
+      display: "signout",
+      href: "/signout",
+    },
   ];
   const [activeOption, setActiveOption] = useState(selectedOption);
   return (

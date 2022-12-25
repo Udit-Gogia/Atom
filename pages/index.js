@@ -40,11 +40,7 @@ export default function Home() {
       {isAuth ? (
         <div className="flex bg-neutral-100 w-full min-h-screen ">
           <Sidebar />
-          <MandatoryCheck
-            isOpen={isOpen}
-            username={username}
-            setIsOpen={setIsOpen}
-          />
+          <MandatoryCheck isOpen={isOpen} setIsOpen={setIsOpen} />
           <div className="w-full flex flex-col ">
             <Tab.Group>
               <Tab.List>

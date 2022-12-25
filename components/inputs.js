@@ -13,7 +13,7 @@ export const InputComponent = ({
   value,
   stateMng,
   type,
-  placeholder,
+  placeholder = null,
 }) => {
   return (
     <div className="flex flex-col gap-2">

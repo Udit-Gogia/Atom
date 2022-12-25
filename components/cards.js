@@ -37,9 +37,7 @@ export function CompanyCard({ title, description, media, link, tags }) {
   return (
     <div className="flex flex-col gap-6 min-w-fit md:mx-auto w-1/2 my-4 p-4 mx-4 border-2 rounded-md bg-white">
       {checkPresence(title) && (
-        <p className="text-3xl font-semibold tracking-wide capitalize">
-          {title}
-        </p>
+        <p className="text-3xl font-semibold tracking-wide">{title}</p>
       )}
 
       {checkPresence(description) && (

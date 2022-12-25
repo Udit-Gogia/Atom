@@ -106,7 +106,7 @@ export function SignupModal({ username, password, isOpen }) {
                     className="btnStyle2 w-full p-2"
                     onClose={() => {}}
                     onClick={() => {
-                      router.push("/basic-info");
+                      router.push("/");
                     }}
                   >
                     continue
@@ -123,6 +123,8 @@ export function SignupModal({ username, password, isOpen }) {
 
 export function MandatoryCheck({ isOpen, setIsOpen }) {
   // const router = useRouter();
+
+  const inputRef = useRef();
   const [image, setImage] = useState(IconUser);
   const [userData, setUserData] = useState();
   const [currUserData, setCurrUserData] = useState({
@@ -132,7 +134,6 @@ export function MandatoryCheck({ isOpen, setIsOpen }) {
     designation: "",
     tag: [],
   });
-  const inputRef = useRef();
   const [countryList, setCountryList] = useState([]);
   const [designationList, setDesignationList] = useState([]);
   const [interestList, setInterestList] = useState([]);
@@ -151,15 +152,16 @@ export function MandatoryCheck({ isOpen, setIsOpen }) {
       };
     });
 
-    setImage(userInfo?.profile_pic_url);
+    checkPresence(userInfo?.profile_pic_url) &&
+      setImage(userInfo?.profile_pic_url);
 
-    let newInterest = interest.map((intName) => {
+    let newInterest = interest?.map((intName) => {
       return { value: intName.title, label: intName.title };
     });
-    let newCountry = country.map((intName) => {
+    let newCountry = country?.map((intName) => {
       return { value: intName.title, label: intName.title };
     });
-    let newDesignation = designation.map((intName) => {
+    let newDesignation = designation?.map((intName) => {
       return { value: intName.title, label: intName.title };
     });
 
