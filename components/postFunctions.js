@@ -65,7 +65,7 @@ export async function likePost(post_id, token = null) {
 }
 
 export async function bookmarkPost(post_id) {
-  const token = await JSON.parse(localStorage.getItem("userData"))?.token;
+  const { token } = await JSON.parse(localStorage.getItem("userData"));
   await callApi(
     "POST",
     "private/all/create-bookmark-post",
@@ -78,16 +78,20 @@ export async function bookmarkPost(post_id) {
 }
 
 export async function reportPost(post_id, reportCreatedById) {
-  await apiBase(
+  const { id } = getUserDataObject("userInfo");
+
+  const { response, result } = await callApi(
     "POST",
     "public/create-report-post",
+    null,
     JSON.stringify({
       post_id,
-      created_by_id: reportCreatedById,
+      created_by_id: id,
     }),
-    null,
     "post reported successfully"
   );
+
+  validateRes(response, result);
 }
 
 export async function reportUser(reportingUserid, reportCreatedById = 1) {
@@ -95,7 +99,7 @@ export async function reportUser(reportingUserid, reportCreatedById = 1) {
     "POST",
     JSON.stringify({
       received_by_id: reportingUserid,
-      created_by_id: reportCreatedById,
+      created_by_id: id,
     }),
     null,
     "public/create-report-user",
@@ -121,19 +125,26 @@ export async function deleteBookmark(bookmarkId) {
   }
 }
 
-async function rateUser(ratingToId, rating) {
+export async function rateUser(ratingToId, rating) {
   const token = await JSON.parse(localStorage.getItem("userData"))?.token;
 
-  const res = await callApi(
+  console.log("inside rate user data receives is ", {
+    received_by_id: ratingToId,
+    rating,
+  });
+
+  const { response, result } = await callApi(
     "POST",
+    "private/all/create-rating",
+    token,
     JSON.stringify({
       received_by_id: ratingToId,
       rating,
     }),
-    token,
-    "private/all/create-rating",
     "user rated successfully"
   );
+
+  return validateRes(response, result);
 }
 
 export async function blockUser(received_by_id, token) {

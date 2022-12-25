@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../components/sidebar";
 import { getUserDataObject } from "../components/authFunctions";
 import { alertUser } from "../components/Modals";
 import { IconMyProfile, IconLogin, IconFeed } from "../assets/images";

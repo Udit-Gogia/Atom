@@ -61,7 +61,7 @@ const experienceOptions = [
 
 export default function CreatePostWorkseeker({ workProfile }) {
   const [formData, setFormData] = useState({
-    work_type: "",
+    work_type: null,
     work_profile: "",
     experience: "",
     city: "",
@@ -74,9 +74,12 @@ export default function CreatePostWorkseeker({ workProfile }) {
     description: "",
   });
 
+  console.log("empty formdata is", formData);
+
   const [tagText, setTagText] = useState("");
 
   function updateFormData(event) {
+    // console.log(event);
     const Name = event.target.name;
     const value = event.target.value;
 
@@ -97,11 +100,12 @@ export default function CreatePostWorkseeker({ workProfile }) {
           onSubmit={async (e) => {
             e.preventDefault();
 
+            console.log(formData);
             const res = await createPost(formData, "create-post-workseeker");
 
             if (res?.status) {
               return setFormData({
-                work_type: "",
+                work_type: null,
                 work_profile: "",
                 experience: "",
                 city: "",
@@ -131,7 +135,11 @@ export default function CreatePostWorkseeker({ workProfile }) {
                         value={job.jobName}
                         className="hidden basis-1/2 peer"
                         name="work_type"
-                        onChange={updateFormData}
+                        onChange={(e) =>
+                          setFormData((prev) => {
+                            return { ...prev, work_type: e.target.value };
+                          })
+                        }
                         required
                       />
                       <div className="flex flex-col items-center basis-1/2 mx-auto peer-checked:font-bold w-full border-2 peer-checked:border-[#191919] rounded-md py-2">
@@ -278,7 +286,11 @@ export default function CreatePostWorkseeker({ workProfile }) {
 
               <PhoneInput
                 name="mobile"
-                onChange={updateFormData}
+                onChange={(e) =>
+                  setFormData((prev) => {
+                    return { ...prev, mobile: e };
+                  })
+                }
                 enableSearch={true}
                 inputStyle={{
                   width: "100%",
@@ -301,7 +313,11 @@ export default function CreatePostWorkseeker({ workProfile }) {
                 country={"in"}
                 value={formData.whatsapp}
                 name="whatsapp"
-                onChange={updateFormData}
+                onChange={(e) =>
+                  setFormData((prev) => {
+                    return { ...prev, whatsapp: e };
+                  })
+                }
               />
             </div>
             {/* whatsapp input ends */}

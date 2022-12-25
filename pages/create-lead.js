@@ -11,15 +11,7 @@ export default function CreateLead() {
   useEffect(() => {
     setCreatedById(getUserDataObject("userId"));
   }, []);
-  // const data = {
-  //   type: "atomx",
-  //   description: description.length > 0 ? description : null,
-  //   media_url: image != IconAdd ? image : null,
-  //   email,
-  //   mobile: `${mobileCode}${mobile}`,
-  //   whatsapp: `${whatsappCode}${whatsapp}`,
-  //   created_by_id: res.id || null,
-  // };
+
   const [formData, setFormData] = useState({
     type: "atomx",
     description: "",

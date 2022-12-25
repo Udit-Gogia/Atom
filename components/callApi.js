@@ -20,13 +20,17 @@ export default async function callApi(
   data && (options["body"] = `${data}`);
   token && (options.headers["token"] = `${token}`);
 
-  const response = await fetch(endpoint, options);
-  const result = await response.json();
+  try {
+    const response = await fetch(endpoint, options);
+    const result = await response.json();
 
-  if (result.status === "true" && successfullMsg) {
-    // alertUser(successfullMsg);
-    alert(successfullMsg);
+    if (result.status === "true" && successfullMsg) {
+      // alertUser(successfullMsg);
+      alert(successfullMsg);
+    }
+
+    return { response, result };
+  } catch (e) {
+    console.log(e);
   }
-
-  return { response, result };
 }

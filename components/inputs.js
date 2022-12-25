@@ -7,7 +7,14 @@ import { Combobox, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
-export const InputComponent = ({ label, Name, value, stateMng, type }) => {
+export const InputComponent = ({
+  label,
+  Name,
+  value,
+  stateMng,
+  type,
+  placeholder,
+}) => {
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={Name} className="font-semibold text-lg tracking-wide ">
@@ -15,6 +22,7 @@ export const InputComponent = ({ label, Name, value, stateMng, type }) => {
       </label>
       <input
         type={type}
+        placeholder={placeholder}
         name={Name}
         value={value}
         onChange={stateMng}
@@ -184,6 +192,27 @@ export const TagsComponent = ({
           })}
         </ul>
       </div>
+    </div>
+  );
+};
+
+export const RadioComponent = ({ Name, stateMng, genderName, genderValue }) => {
+  return (
+    <div>
+      <label>
+        <input
+          type="radio"
+          name={Name}
+          value={genderValue}
+          className="hidden basis-1/2 peer"
+          onChange={stateMng}
+          required
+        />
+
+        <p className="flex flex-col items-center basis-1/2 mx-auto peer-checked:font-bold w-full border-2 peer-checked:border-[#191919] rounded-md px-4 py-2">
+          {genderName}
+        </p>
+      </label>
     </div>
   );
 };

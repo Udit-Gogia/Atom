@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../components/sidebar";
 import { useEffect, useState } from "react";
 import { getUserDataObject } from "../components/authFunctions";
 import { alertUser } from "../components/Modals";

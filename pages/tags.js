@@ -1,4 +1,4 @@
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../components/sidebar";
 import callApi from "../components/callApi";
 import { checkPresence } from "../components/cards";
 import parseTag from "../components/parseTag";

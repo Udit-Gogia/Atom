@@ -15,6 +15,7 @@ import {
   IconComment,
   IconChat,
   IconLiked,
+  IconDownload,
 } from "../assets/images";
 
 export function checkPresence(ele) {
@@ -169,19 +170,20 @@ export function PostCard({
       setLikeCount((count) => count + 1);
     }
   }
+
   return (
     <>
       {checkPresence(postId) && (
-        <div className="flex flex-col w-full p-8 m-4 mt-2 bg-white border-2 rounded-xl border-primaryBlack gap-4">
+        <div className="flex flex-col w-full p-8 m-4 mt-2 bg-white border-2 rounded-xl border-primaryBlack gap-6">
           <section className="flex gap-2 justify-between items-center">
-            <div className="flex gap-4 ">
+            <div className="flex gap-4">
               {checkPresence(createdByProfilePicUrl) ? (
                 <Image
                   src={createdByProfilePicUrl}
                   alt={createdByUsername || "icon"}
                   className="rounded-full "
-                  width="60"
-                  height="60"
+                  width="50"
+                  height="50"
                   style={{ width: "auto", height: "auto" }}
                 />
               ) : (
@@ -190,8 +192,8 @@ export function PostCard({
                   alt={createdByUsername}
                   className="rounded-full"
                   style={{ width: "auto", height: "auto" }}
-                  width="60"
-                  height="60"
+                  width="50"
+                  height="50"
                 />
               )}
 
@@ -201,12 +203,13 @@ export function PostCard({
                 )}
 
                 {checkPresence(toString(createdByRating)) && (
-                  <p className="flex">
+                  <p className="flex items-center">
                     <Image
                       src={IconStar}
                       alt="icon-rating"
                       width={"20"}
-                      style={{ width: "auto" }}
+                      height={"20"}
+                      style={{ width: "20px", height: "20px" }}
                     />
                     <span className="mx-2 text-lg">{createdByRating}</span>
                   </p>
@@ -214,7 +217,12 @@ export function PostCard({
               </div>
             </div>
 
-            <DropDown />
+            <DropDown
+              username={createdByUsername}
+              PostId={postId}
+              createdById={createdById}
+              profilePicUrl={createdByProfilePicUrl}
+            />
           </section>
 
           {checkPresence(postTitle) && (
@@ -256,7 +264,7 @@ export function PostCard({
               )
             ))}
           {checkPresence(postLinkUrl) && (
-            <p className="text-left mt-4">
+            <p className="text-left ">
               Link{" "}
               <a
                 href={postLinkUrl}
@@ -269,12 +277,12 @@ export function PostCard({
             </p>
           )}
           {checkPresence(postTags) && (
-            <div className="flex my-4 flex-wrap ">
+            <div className="flex flex-wrap gap-2">
               {postTags.map((tag, index) => {
                 return (
                   <button
                     key={index}
-                    className="lg:mr-3 bg-zinc-200 text-md tracking-wide w-fit px-2 py-1 rounded-sm border-l-2 border-[#191919] my-2"
+                    className="lg:mr-3 bg-zinc-200 text-md tracking-wide w-fit px-2 py-1 rounded-sm border-l-2 border-[#191919]"
                     type="button"
                     onClick={() => showTagFeed(tag)}
                   >
@@ -283,6 +291,28 @@ export function PostCard({
                 );
               })}
             </div>
+          )}
+
+          {(checkPresence(city) ||
+            checkPresence(state) ||
+            checkPresence(country)) && (
+            <p className="text-start">
+              Location : {city} {state} {country}
+            </p>
+          )}
+
+          {(checkPresence(createdByEmail) ||
+            checkPresence(createdByMobile) ||
+            checkPresence(createdByWhatsapp)) && (
+            <section className="flex flex-col items-start gap-2">
+              {checkPresence(createdByEmail) && <p>Email {createdByEmail} </p>}
+              {checkPresence(createdByMobile) && (
+                <p>Mobile {createdByMobile} </p>
+              )}
+              {checkPresence(createdByWhatsapp) && (
+                <p>Whatsapp {createdByWhatsapp} </p>
+              )}
+            </section>
           )}
 
           <div className="flex items-center justify-between">
@@ -321,7 +351,20 @@ export function PostCard({
               </button>
               <p className="font-semibold text-lg">{postCommentCount}</p>
             </div>
-            <div>{dayDiff}</div>
+            <div className="ml-auto flex gap-4">
+              {checkPresence(postMediaUrl) && (
+                <Link href={postMediaUrl}>
+                  <Image
+                    src={IconDownload}
+                    width={"20"}
+                    height={"20"}
+                    alt="icon-download"
+                    style={{ width: "20px", height: "20px" }}
+                  />
+                </Link>
+              )}
+              <p className="ml-auto">{dayDiff}</p>
+            </div>
           </div>
         </div>
       )}

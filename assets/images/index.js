@@ -16,6 +16,7 @@ import IconSuccess from "./Atom/icon-success.png";
 import IconTags from "./Atom/icon-tags.png";
 import IconUser from "./Atom/icon-user.png";
 import IconMenu from "./Atom/icon-menu.png";
+import IconDownload from "./Atom/icon-download.png";
 
 //Sidebar icons
 
@@ -71,4 +72,5 @@ export {
   IconTags,
   IconUser,
   IconMenu,
+  IconDownload,
 };
