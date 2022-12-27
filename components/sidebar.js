@@ -14,7 +14,7 @@ const Sidebar = ({ selectedOption = 0 }) => {
       src: IconHub,
       alt: "icon-hub.png",
       display: "Hub",
-      href: "/tags",
+      href: "/hub",
     },
     {
       src: IconEdit,

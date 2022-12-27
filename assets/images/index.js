@@ -18,6 +18,9 @@ import IconUser from "./Atom/icon-user.png";
 import IconMenu from "./Atom/icon-menu.png";
 import IconDownload from "./Atom/icon-download.png";
 import IconSetting from "./Atom/icon-setting.png";
+import IconArrow from "./Atom/icon-arrow.png";
+import IconSend from "./Atom/icon-send.png";
+import IconImage from "./Atom/icon-image.png";
 
 //Sidebar icons
 
@@ -42,6 +45,7 @@ import ImageAtom from "./image-atom.jpg";
 import LogoAtom from "./logo-atom.png";
 
 export {
+  IconImage,
   ImageAtom,
   LogoAtom,
   IconContactUs,
@@ -74,7 +78,9 @@ export {
   IconTags,
   IconUser,
   IconMenu,
+  IconArrow,
   IconDownload,
   IconSetting,
   IconHub,
+  IconSend,
 };

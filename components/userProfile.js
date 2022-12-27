@@ -17,53 +17,26 @@ export default function UserProfile() {
 
   const userDetails = [
     {
-      heading: "Name",
-      content: userInfo?.["name"],
-    },
-    {
       heading: "About Me",
       content: userInfo?.["description"],
     },
 
     {
-      heading: "Mobile",
-      content: userInfo?.["mobile"],
-    },
-    {
-      heading: "Whatsapp",
-      content: userInfo?.["whatsapp"],
-    },
-    {
-      heading: "Phone",
-      content: userInfo?.["phone"],
-    },
-    {
-      heading: "City",
-      content: userInfo?.["city"],
+      heading: "Year of Birth",
+      content: userInfo?.["year_of_birth"],
     },
     {
       heading: "State",
       content: userInfo?.["state"],
     },
-    {
-      heading: "Country",
-      content: userInfo?.["country"],
-    },
-    {
-      heading: "Address",
-      content: userInfo?.["address"],
-    },
-    {
-      heading: "Pincode",
-      content: userInfo?.["pincode"],
-    },
+
     {
       heading: "Gender",
       content: userInfo?.["gender"],
     },
     {
-      heading: "Year of Birth",
-      content: userInfo?.["year_of_birth"],
+      heading: "Country",
+      content: userInfo?.["country"],
     },
   ];
 

@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import parseTag from "./parseTag";
 import { likePost, verifyLikedPosts } from "./postFunctions";
 import { useRouter } from "next/router";
-import { alertUser } from "./Modals";
+import InfiniteScroll from "react-infinite-scroll-component";
 import DropDown from "./Dropdown";
+import callApi from "./callApi";
 import {
   IconUser,
   IconStar,
@@ -15,6 +16,8 @@ import {
   IconComment,
   IconChat,
   IconLiked,
+  IconImage,
+  IconSend,
   IconDownload,
 } from "../assets/images";
 
@@ -35,7 +38,7 @@ export function checkPresence(ele) {
 
 export function CompanyCard({ title, description, media, link, tags }) {
   return (
-    <div className="flex flex-col gap-6 min-w-fit md:mx-auto w-1/2 my-4 p-4 mx-4 border-2 rounded-md bg-white">
+    <div className="flex flex-col gap-6 min-w-fit md:mx-auto w-1/2 my-4 p-4 mx-4 border-2 rounded-md bg-white ">
       {checkPresence(title) && (
         <p className="text-3xl font-semibold tracking-wide">{title}</p>
       )}
@@ -115,6 +118,27 @@ export function SidebarCard({
   );
 }
 
+export const getTimeDifference = (date) => {
+  const formattedDate = Date.parse(date);
+  const currDate = new Date();
+  const formattedCurrDate = Date.parse(currDate);
+  const timeDiffInSeconds = (formattedCurrDate - formattedDate) / 1000;
+
+  if (timeDiffInSeconds < 60) {
+    return "right now";
+  } else if (timeDiffInSeconds >= 60 && timeDiffInSeconds < 3600) {
+    return `${parseInt(timeDiffInSeconds / 60)}m`;
+  } else if (timeDiffInSeconds >= 3600 && timeDiffInSeconds < 86400) {
+    return `${parseInt(timeDiffInSeconds / 3600)}h`;
+  } else if (timeDiffInSeconds >= 86400 && timeDiffInSeconds < 2592000) {
+    return `${parseInt(timeDiffInSeconds / 86400)}d`;
+  } else if (timeDiffInSeconds >= 2592000 && timeDiffInSeconds < 31104000) {
+    return `${parseInt(timeDiffInSeconds / 2592000)}mo`;
+  }
+
+  return "show time diff";
+};
+
 export function PostCard({
   postId,
   createdById,
@@ -141,10 +165,84 @@ export function PostCard({
   const router = useRouter();
   const [likedStatus, setLikedStatus] = useState(verifyLikedPosts(postId));
   const [likeCount, setLikeCount] = useState(postLikeCount);
-  var date1 = new Date(postCreatedAt?.substring(0, 10));
-  var date2 = new Date();
-  var dayDiff = parseInt((date2 - date1) / (1000 * 60 * 60 * 24), 10);
-  dayDiff = `${dayDiff} d`;
+  const [showComments, setShowComments] = useState(false);
+
+  const [displayComments, setDisplayComments] = useState([]);
+  let [newComments, setNewComments] = useState([]);
+  let [pageNumber, setPageNumber] = useState(1);
+  let [moreComments, setMoreComments] = useState(true);
+  const [file, setFile] = useState(null);
+  const commentDescRef = useRef();
+
+  const inputRef = useRef(null);
+
+  const initiateFileInput = () => {
+    inputRef.current.click();
+  };
+
+  useEffect(() => {
+    setNewComments([]);
+    renderComments();
+  }, []);
+
+  const renderComments = async () => {
+    pageNumber = 1;
+    const { result } = await callApi(
+      "GET",
+      `public/read-comment/${pageNumber}?post_id=${postId}`
+    );
+    await setDisplayComments(result);
+    console.log("inside renderComments ", pageNumber);
+
+    return pageNumber;
+  };
+
+  const getMoreComments = async () => {
+    pageNumber++;
+    console.log("inside getmoreComments ", pageNumber);
+    const { result: res } = await callApi(
+      "GET",
+      `public/read-comment/${pageNumber}?post_id=${postId}`
+    );
+
+    if (res != "no data") {
+      if (res[0]?.post_id === 10) {
+        await setMorePosts(false);
+      }
+
+      if (res?.length != 0) {
+        (await Array.isArray(res)) &&
+          setDisplayComments((displayComments) => [...displayComments, ...res]);
+      }
+    } else {
+      setMoreComments(false);
+    }
+  };
+
+  const submitFunction = async () => {
+    const { token } = getUserDataObject();
+    const data = { post_id };
+    if (checkPresence(file)) {
+      console.log(file);
+      data["media_url"] = file;
+    } else {
+      data["description"] = commentDescRef.current.value;
+    }
+
+    const { result } = await callApi(
+      "POST",
+      "private/all/create-comment",
+      token,
+      JSON.stringify(data),
+      "post created successfully"
+    );
+
+    result?.status;
+    if (result?.status) {
+      fetchComments();
+      commentDescRef.current.value = null;
+    }
+  };
 
   function showTagFeed(tagName) {
     router.push(
@@ -172,9 +270,9 @@ export function PostCard({
   return (
     <>
       {checkPresence(postId) && (
-        <div className="flex flex-col w-full p-8 m-4 mt-2 bg-white border-2 rounded-xl border-primaryBlack gap-6">
+        <div className="flex flex-col w-full p-6 m-4 mt-2 bg-white border-2 rounded-xl border-primaryBlack gap-6">
           <section className="flex gap-2 justify-between items-center">
-            <div className="flex gap-4">
+            <div className="flex gap-2">
               {checkPresence(createdByProfilePicUrl) ? (
                 <Image
                   src={createdByProfilePicUrl}
@@ -182,14 +280,14 @@ export function PostCard({
                   className="rounded-full "
                   width="50"
                   height="50"
-                  style={{ width: "auto", height: "auto" }}
+                  style={{ width: "4em", height: "4em" }}
                 />
               ) : (
                 <Image
                   src={IconUser}
                   alt={createdByUsername}
                   className="rounded-full"
-                  style={{ width: "auto", height: "auto" }}
+                  style={{ width: "4em", height: "4em" }}
                   width="50"
                   height="50"
                 />
@@ -229,7 +327,9 @@ export function PostCard({
             <p className="text-left text-xl font-semibold">{postTitle}</p>
           )}
           {checkPresence(postDescription) && (
-            <p className="text-left text-lg">{postDescription}</p>
+            <p className="text-left text-lg whitespace-pre-wrap text-neutral-700">
+              {postDescription}
+            </p>
           )}
           {checkPresence(postMediaUrl) &&
             (postMediaUrl.substring(postMediaUrl.length - 3) != "pdf" ? (
@@ -243,9 +343,8 @@ export function PostCard({
               />
             ) : (
               checkPresence(postId) && (
-                <div className="w-full flex justify-evenly items-center border-2 p-2 rounded-md">
+                <div className="w-full flex justify-start gap-4 items-center">
                   <Image
-                    className={`rounded-md`}
                     src={IconPdf}
                     style={{ width: "auto" }}
                     alt="icon-pdf"
@@ -258,7 +357,7 @@ export function PostCard({
                     rel="noreferrer"
                     className="font-semibold "
                   >
-                    View
+                    View file
                   </a>
                 </div>
               )
@@ -282,7 +381,7 @@ export function PostCard({
                 return (
                   <button
                     key={index}
-                    className="lg:mr-3 bg-zinc-200 text-md tracking-wide w-fit px-2 py-1 rounded-sm border-l-2 border-[#191919]"
+                    className="lg:mr-3 bg-zinc-200 text-md tracking-wide w-fit px-2 py-1 rounded-sm border-l-4 border-blue-900"
                     type="button"
                     onClick={() => showTagFeed(tag)}
                   >
@@ -297,7 +396,9 @@ export function PostCard({
             checkPresence(state) ||
             checkPresence(country)) && (
             <p className="text-start">
-              Location : {city} {state} {country}
+              Location : {checkPresence(country) && `${country},`}{" "}
+              {checkPresence(state) && `${state},`}{" "}
+              {checkPresence(city) && `${city}`}
             </p>
           )}
 
@@ -319,7 +420,7 @@ export function PostCard({
             <div className="flex gap-2">
               <section className="flex mr-4">
                 <button
-                  className="hover:bg-neutral-200 px-2 rounded-md"
+                  className="hover:bg-neutral-200 p-2 gap-2 rounded-md flex items-center "
                   onClick={likeThisPost}
                   disabled={verifyLikedPosts(postId)}
                 >
@@ -329,10 +430,10 @@ export function PostCard({
                     height={"22"}
                     alt="icon-like"
                   />
+                  <p className="font-semibold text-lg">{likeCount}</p>
                 </button>
-                <p className="font-semibold text-lg">{likeCount}</p>
               </section>
-              <button className="hover:bg-neutral-100 px-2 rounded-md mr-4">
+              <button className="hover:bg-neutral-200 px-2 rounded-md mr-4">
                 <Image
                   src={IconChat}
                   width={"22"}
@@ -341,19 +442,33 @@ export function PostCard({
                 />
               </button>
 
-              <button>
+              <button
+                onClick={async () => {
+                  pageNumber = 1;
+                  setShowComments(!showComments);
+                  pageNumber = 1;
+                  console.log("comment button clicked ", pageNumber);
+                  var currpage = await renderComments();
+                  console.log("curr page", currpage);
+                  return setPageNumber(1);
+                }}
+                className="hover:bg-neutral-200 rounded-md flex gap-2 p-2 items-center"
+              >
                 <Image
                   src={IconComment}
                   width={"22"}
                   height={"22"}
                   alt="icon-comment"
                 />
+                <p className="font-semibold text-lg">{postCommentCount}</p>
               </button>
-              <p className="font-semibold text-lg">{postCommentCount}</p>
             </div>
-            <div className="ml-auto flex gap-4">
+            <div className="ml-auto flex gap-4 items-center">
               {checkPresence(postMediaUrl) && (
-                <Link href={postMediaUrl}>
+                <Link
+                  href={postMediaUrl}
+                  className="hover:bg-neutral-200 rounded-md p-2"
+                >
                   <Image
                     src={IconDownload}
                     width={"20"}
@@ -363,11 +478,188 @@ export function PostCard({
                   />
                 </Link>
               )}
-              <p className="ml-auto">{dayDiff}</p>
+              <p className="ml-auto">{getTimeDifference(postCreatedAt)}</p>
+            </div>
+          </div>
+          {/* <CommentModal
+            isOpen={showComments}
+            setIsOpen={setShowComments}
+            post_id={postId}
+          /> */}
+          <div className={`${showComments ? "" : "hidden"}  `}>
+            <div className={`h-full inset-0 overflow-y-auto `}>
+              <div
+                className="flex flex-col justify-centertext-center rounded-md overflow-hidden"
+                style={{ height: "inherit" }}
+              >
+                <div className="flex items-center bg-primaryBlack p-4 transform gap-8 ">
+                  <h3 className="mx-auto text-xl font-medium text-center tracking-wide text-white">
+                    Comments
+                  </h3>
+                </div>
+
+                {/* show comments here */}
+
+                <div
+                  id="scrollableDiv"
+                  className="flex flex-col gap-4 bg-neutral"
+                  style={{ height: "50vh", overflow: "auto" }}
+                >
+                  <InfiniteScroll
+                    dataLength={displayComments?.length}
+                    refreshFunction={getMoreComments}
+                    next={() => {
+                      getMoreComments();
+                      setPageNumber((pageNumber) => pageNumber + 1);
+                    }}
+                    hasMore={moreComments}
+                    loader={
+                      <p className="font-semibold roboto-reg">Loading...</p>
+                    }
+                    endMessage={<p>end of comments</p>}
+                    scrollableTarget="scrollableDiv"
+                    scrollThreshold={0.8}
+                  >
+                    {Array.isArray(displayComments) && displayComments != [] ? (
+                      displayComments.map((comment, idx) => {
+                        return (
+                          <CommentCard
+                            key={idx}
+                            commentId={comment?.["id"]}
+                            createdByProfilePicUrl={
+                              comment?.["created_by_profile_pic_url"]
+                            }
+                            createdByUsername={comment?.["created_by_username"]}
+                            description={comment?.["description"]}
+                            mediaUrl={comment?.["media_url"]}
+                            createdById={comment?.["created_by_id"]}
+                            createdAt={comment?.["created_at"]}
+                          />
+                        );
+                      })
+                    ) : (
+                      <p className="text-center font-semibold">
+                        No comments yet
+                      </p>
+                    )}
+                  </InfiniteScroll>
+                </div>
+
+                {/* new comment input */}
+                <div className="flex gap-2 p-2 border-2">
+                  <div className="flex items-center ">
+                    <button
+                      type="button"
+                      onClick={initiateFileInput}
+                      className="rounded-md hover:border-primaryBlack transition-all items-center"
+                    >
+                      <Image
+                        src={IconImage}
+                        alt="icon-image"
+                        width={"30"}
+                        height={"30"}
+                        style={{ width: "30px", height: "30px" }}
+                      />
+                    </button>
+
+                    <input
+                      type="file"
+                      style={{ display: "none" }}
+                      ref={inputRef}
+                      accept="image/*"
+                      onClick={(e) => handleFileInput(e, setFile)}
+                      onChange={(e) => handleFileInput(e, setFile)}
+                      name="file-input"
+                    />
+                  </div>
+
+                  {!checkPresence(file) ? (
+                    <textarea
+                      wrap="soft"
+                      type="text"
+                      placeholder="Start typing.."
+                      className="w-full p-2 resize-y placeholder:leading-[2.5] focus:placeholder:leading-none"
+                      ref={commentDescRef}
+                    />
+                  ) : (
+                    <div className="w-full p-2 flex gap-4 items-center">
+                      <Image
+                        src={file}
+                        width={"75"}
+                        height={"75"}
+                        alt="comment-media"
+                      />
+
+                      <p
+                        type="button"
+                        className={`hover:underline border-2 px-4 py-2 rounded-md hover:border-primaryBlack`}
+                        onClick={() => setFile(null)}
+                      >
+                        remove{" "}
+                      </p>
+                    </div>
+                  )}
+                  <button onClick={submitFunction}>
+                    <Image
+                      src={IconSend}
+                      alt="icon-send"
+                      style={{ width: "30px", height: "25px" }}
+                      className="ml-auto"
+                    />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )}
     </>
+  );
+}
+
+export function CommentCard({
+  description,
+  createdAt,
+  createdByProfilePicUrl,
+  mediaUrl,
+  createdById,
+  createdByUsername,
+}) {
+  return (
+    <div className="flex w-full gap-2 h-fit">
+      <section>
+        <Image
+          src={createdByProfilePicUrl || IconUser}
+          width={"40"}
+          height={"40"}
+          style={{ width: "40px", height: "40px" }}
+          alt="user-img"
+          className="rounded-full"
+        />
+      </section>
+
+      <section className="flex flex-col gap-4 p-4 w-full bg-white rounded-md h-fit">
+        <section className="flex justify-between">
+          <p className="font-semibold text-lg">{createdByUsername}</p>
+          <p className="ml-auto">{getTimeDifference(createdAt)}</p>
+        </section>
+
+        {checkPresence(description) && (
+          <p className="text-left text-lg whitespace-pre-wrap text-neutral-700">
+            {description}
+          </p>
+        )}
+
+        {checkPresence(mediaUrl) && (
+          <Image
+            src={mediaUrl}
+            width={"100"}
+            height={"100"}
+            style={{ width: "100px", height: "100px" }}
+            alt="comment-media"
+          />
+        )}
+      </section>
+    </div>
   );
 }

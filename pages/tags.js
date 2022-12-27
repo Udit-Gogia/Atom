@@ -21,9 +21,9 @@ export default function Tags() {
 
   return (
     <div className="flex bg-neutral-100 w-full min-h-screen h-max">
-      <Sidebar selectedOption={1} />
+      {/* <Sidebar selectedOption={1} /> */}
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 w-full p-8 pl-0 ">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-8 w-full p-8 ">
         {Array.isArray(tagList) &&
           tagList?.map((tag, index) => {
             return (

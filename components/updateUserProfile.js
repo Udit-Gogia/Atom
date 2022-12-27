@@ -236,8 +236,8 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
           <section className="flex gap-4">
             <RadioComponent
               Name={"gender"}
-              genderName={"Male"}
-              genderValue={"male"}
+              label={"Male"}
+              Value={"male"}
               stateMng={(e) => {
                 if (!fieldsChanged.includes(e.target.name)) {
                   fieldsChanged.push(e.target.name);
@@ -249,8 +249,8 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
             />
             <RadioComponent
               Name={"gender"}
-              genderName={"Female"}
-              genderValue={"female"}
+              label={"Female"}
+              Value={"female"}
               stateMng={(e) => {
                 if (!fieldsChanged.includes(e.target.name)) {
                   fieldsChanged.push(e.target.name);
@@ -262,8 +262,8 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
             />
             <RadioComponent
               Name={"gender"}
-              genderName={"Other"}
-              genderValue={"other"}
+              label={"Other"}
+              Value={"other"}
               stateMng={(e) => {
                 if (!fieldsChanged.includes(e.target.name)) {
                   fieldsChanged.push(e.target.name);

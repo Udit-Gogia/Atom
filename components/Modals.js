@@ -1,17 +1,27 @@
 import { Dialog, Transition, Combobox } from "@headlessui/react";
 import { Fragment, useEffect, useState, useRef } from "react";
+import { CountrySelect, InputComponent } from "../components/inputs";
+import { handleFileInput } from "../components/fileFunctions";
+import ShowPosts from "./showPosts";
+import Select from "react-select";
+import { checkPresence, CommentCard } from "../components/cards";
+import InfiniteScroll from "react-infinite-scroll-component";
 import { useRouter } from "next/router";
-import { IconCopy, IconSuccess, IconUser } from "../assets/images";
+import callApi from "./callApi";
 import Image from "next/image";
+import {
+  IconCopy,
+  IconSuccess,
+  IconUser,
+  IconArrow,
+  IconSend,
+  IconImage,
+} from "../assets/images";
 import {
   getUserDataObject,
   updateUserDataFromApi,
   updateUserDataObject,
 } from "../components/authFunctions";
-import { CountrySelect, InputComponent } from "../components/inputs";
-import { handleFileInput } from "../components/fileFunctions";
-import Select from "react-select";
-import { checkPresence } from "../components/cards";
 
 export function alertUser(msg) {
   alert(msg);
@@ -349,5 +359,205 @@ export function MandatoryCheck({ isOpen, setIsOpen }) {
         </div>
       </Dialog>
     </Transition>
+  );
+}
+
+export function CommentModal({ post_id, isOpen, setIsOpen }) {
+  const [comments, setComments] = useState([]);
+  let [newComments, setNewComments] = useState([]);
+  let [pageNumber, setPageNumber] = useState(1);
+  let [hasMore, setHasMore] = useState(true);
+  const [file, setFile] = useState(null);
+  const commentDescRef = useRef();
+
+  const inputRef = useRef(null);
+
+  const initiateFileInput = () => {
+    inputRef.current.click();
+  };
+
+  useEffect(() => {
+    setNewComments([]);
+    fetchComments();
+  }, []);
+
+  const fetchComments = async () => {
+    setPageNumber(1);
+    pageNumber = 1;
+    hasMore = true;
+
+    const { result } = await callApi(
+      "GET",
+      `public/read-comment/${pageNumber}?post_id=${post_id}`
+    );
+
+    Array.isArray(result) && checkPresence(result)
+      ? setComments(result)
+      : setHasMore(false);
+  };
+
+  const getMoreComments = async () => {
+    ++pageNumber;
+
+    const { result } = await callApi(
+      "GET",
+      `public/read-comment/${pageNumber}?post_id=${post_id}`
+    );
+
+    checkPresence(result) && Array.isArray(result)
+      ? setComments((prevComments) => [
+          ...new Set([...prevComments, ...result]),
+        ])
+      : setHasMore(false);
+    setPageNumber(pageNumber);
+  };
+
+  const submitFunction = async () => {
+    const { token } = getUserDataObject();
+    const data = { post_id };
+    if (checkPresence(file)) {
+      console.log(file);
+      data["media_url"] = file;
+    } else {
+      data["description"] = commentDescRef.current.value;
+    }
+
+    const { result } = await callApi(
+      "POST",
+      "private/all/create-comment",
+      token,
+      JSON.stringify(data),
+      "post created successfully"
+    );
+
+    result?.status;
+    if (result?.status) {
+      fetchComments();
+      commentDescRef.current.value = null;
+    }
+  };
+  return (
+    <div className={`${isOpen ? "" : "hidden"}  `}>
+      <div className={`h-full inset-0 overflow-y-auto `}>
+        <div
+          className="flex flex-col justify-centertext-center rounded-md overflow-hidden"
+          style={{ height: "inherit" }}
+        >
+          <div className="flex items-center bg-primaryBlack p-4 transform gap-8 ">
+            <h3 className="mx-auto text-xl font-medium text-center tracking-wide text-white">
+              Comments
+            </h3>
+          </div>
+
+          <div className="bg-neutral-100 py-4 flex flex-col " id="commentDiv">
+            {/* show comments here */}
+
+            <InfiniteScroll
+              dataLength={comments.length * 10}
+              next={() => {
+                console.log("reached end of set of comments");
+                getMoreComments();
+              }}
+              scrollableTarget="commentDiv"
+              scrollThreshold={0.8}
+              hasMore={hasMore}
+              loader={<p>loading ...</p>}
+              style={{
+                height: "fit-content",
+                maxHeight: "40vh",
+                overflow: "auto",
+              }}
+              className="h-screen"
+            >
+              {checkPresence(comments) ? (
+                Array.isArray(comments) &&
+                comments?.map((comment, index) => {
+                  return (
+                    <div key={index} className="p-4 pt-0  text-center">
+                      <CommentCard
+                        createdById={comment?.created_by_id}
+                        mediaUrl={comment?.media_url}
+                        createdAt={comment?.created_at}
+                        createdByProfilePicUrl={
+                          comment?.created_by_profile_pic_url
+                        }
+                        description={comment?.description}
+                        createdByUsername={comment?.created_by_username}
+                      />
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-center font-semibold">No comments yet</p>
+              )}
+            </InfiniteScroll>
+          </div>
+
+          {/* new comment input */}
+          <div className="flex gap-2 p-2 border-2">
+            <div className="flex items-center ">
+              <button
+                type="button"
+                onClick={initiateFileInput}
+                className="rounded-md hover:border-primaryBlack transition-all items-center"
+              >
+                <Image
+                  src={IconImage}
+                  alt="icon-image"
+                  width={"30"}
+                  height={"30"}
+                  style={{ width: "30px", height: "30px" }}
+                />
+              </button>
+
+              <input
+                type="file"
+                style={{ display: "none" }}
+                ref={inputRef}
+                accept="image/*"
+                onClick={(e) => handleFileInput(e, setFile)}
+                onChange={(e) => handleFileInput(e, setFile)}
+                name="file-input"
+              />
+            </div>
+
+            {!checkPresence(file) ? (
+              <textarea
+                wrap="soft"
+                type="text"
+                placeholder="Start typing.."
+                className="w-full p-2 resize-y placeholder:leading-[2.5] focus:placeholder:leading-none"
+                ref={commentDescRef}
+              />
+            ) : (
+              <div className="w-full p-2 flex gap-4 items-center">
+                <Image
+                  src={file}
+                  width={"75"}
+                  height={"75"}
+                  alt="comment-media"
+                />
+
+                <p
+                  type="button"
+                  className={`hover:underline border-2 px-4 py-2 rounded-md hover:border-primaryBlack`}
+                  onClick={() => setFile(null)}
+                >
+                  remove{" "}
+                </p>
+              </div>
+            )}
+            <button onClick={submitFunction}>
+              <Image
+                src={IconSend}
+                alt="icon-send"
+                style={{ width: "30px", height: "25px" }}
+                className="ml-auto"
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

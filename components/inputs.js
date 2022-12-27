@@ -196,21 +196,21 @@ export const TagsComponent = ({
   );
 };
 
-export const RadioComponent = ({ Name, stateMng, genderName, genderValue }) => {
+export const RadioComponent = ({ Name, stateMng, label, Value }) => {
   return (
     <div>
       <label>
         <input
           type="radio"
           name={Name}
-          value={genderValue}
+          value={Value}
           className="hidden basis-1/2 peer"
           onChange={stateMng}
           required
         />
 
         <p className="flex flex-col items-center basis-1/2 mx-auto peer-checked:font-bold w-full border-2 peer-checked:border-[#191919] rounded-md px-4 py-2">
-          {genderName}
+          {label}
         </p>
       </label>
     </div>

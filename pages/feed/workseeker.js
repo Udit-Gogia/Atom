@@ -1,22 +1,30 @@
 import { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { checkPresence, PostCard } from "./cards";
-import callApi from "./callApi";
-import { tagName, action } from "./parseTag";
+import { checkPresence, PostCard } from "../../components/cards";
+import callApi from "../../components/callApi";
+import parseTag, { tagName, action } from "../../components/parseTag";
 import { useRouter } from "next/router";
-import { getUserDataObject } from "./authFunctions";
 
-export default function SelfPostComponent({ url, type, query }) {
-  //   const router = useRouter();
-
-  console.log(`${url}/${type}/${query}`);
+export function ShowPosts({ feedType, type }) {
+  const router = useRouter();
   const [posts, setPosts] = useState([]);
   let [hasMore, setHasMore] = useState(true);
   let [pageNumber, setPageNumber] = useState(1);
 
   useEffect(() => {
+    setPageNumber(1);
     fetchPosts();
-  }, [action, tagName]);
+    if (tagName === undefined) {
+      if (feedType != "fresh") {
+        router.push({
+          pathname: `${type}`,
+          query: { feed_type: feedType },
+        });
+      } else {
+        router.push(`/feed/${type}`);
+      }
+    }
+  }, [feedType, tagName, type, action]);
 
   const fetchPosts = async () => {
     if (action === "tagClick") {
@@ -24,12 +32,11 @@ export default function SelfPostComponent({ url, type, query }) {
       pageNumber = 1;
       hasMore = true;
     }
-
-    const { token } = getUserDataObject();
     const { response, result } = await callApi(
       "GET",
-      `${url}/${pageNumber}?${query}   `,
-      token
+      `public/read-post/${pageNumber}?feed_type=${feedType}${
+        checkPresence(tagName) ? `&tag=${tagName}` : ""
+      }${checkPresence(type) ? `&type=${type}` : ""} `
     );
 
     Array.isArray(result) && checkPresence(result)
@@ -39,11 +46,12 @@ export default function SelfPostComponent({ url, type, query }) {
 
   const getMorePosts = async () => {
     ++pageNumber;
-    const { token } = getUserDataObject();
+
     const { response, result } = await callApi(
       "GET",
-      `${url}/${pageNumber}?${query}`,
-      token
+      `public/read-post/${pageNumber}?feed_type=${feedType}${
+        checkPresence(tagName) ? `&tag=${tagName}` : ""
+      }${checkPresence(type) ? `&type=${type}` : ""} `
     );
 
     checkPresence(result) && Array.isArray(result)
@@ -53,7 +61,7 @@ export default function SelfPostComponent({ url, type, query }) {
   };
 
   return (
-    <div className="w-[45vw]">
+    <div className="md:w-[45vw] sm:w-full mx-auto ">
       <InfiniteScroll
         dataLength={posts?.length}
         next={() => {
@@ -61,17 +69,15 @@ export default function SelfPostComponent({ url, type, query }) {
         }}
         hasMore={hasMore}
         loader={<p>loading ...</p>}
-        endMessage={<p>no more posts</p>}
+        endMessage={<p>end of posts</p>}
         className="h-screen"
       >
         {checkPresence(posts)
           ? Array.isArray(posts) &&
             posts?.map((post, index) => {
               return (
-                <div key={index} className="flex pt-0 flex-1 text-center ">
+                <div key={index} className="flex p-4 pt-0 flex-1 text-center ">
                   <PostCard
-                    postType={type}
-                    bookmarkId={post?.["bookmark_id"]}
                     postId={post?.["id"]}
                     createdById={post?.["created_by_id"]}
                     createdByUsername={post?.["created_by_username"]}
@@ -99,6 +105,34 @@ export default function SelfPostComponent({ url, type, query }) {
             })
           : null}
       </InfiniteScroll>
+    </div>
+  );
+}
+
+export default function Workseeker() {
+  const router = useRouter();
+  return (
+    <div className="w-full bg-neutral-100 ">
+      <div className="mx-auto min-h-screen h-max">
+        {checkPresence(tagName) && (
+          <div className=" bg-zinc-200 text-md tracking-wide w-fit px-2 py-1 rounded-sm border-l-2 border-[#191919] my-2 flex mx-auto">
+            <p>{tagName}</p>
+            <button
+              type="button"
+              className="ml-2"
+              onClick={() => {
+                parseTag(null);
+                router.reload();
+              }}
+            >
+              X
+            </button>
+          </div>
+        )}
+        <section className="">
+          <ShowPosts feedType={"fresh"} type={"workseeker"} />
+        </section>
+      </div>
     </div>
   );
 }
