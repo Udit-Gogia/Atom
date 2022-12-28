@@ -5,13 +5,13 @@ import parseTag from "./parseTag";
 import { likePost, verifyLikedPosts } from "./postFunctions";
 import { useRouter } from "next/router";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { CreateModal } from "./Modals";
 import DropDown from "./Dropdown";
 import callApi from "./callApi";
 import {
   IconUser,
   IconStar,
   IconPdf,
-  IconMenu,
   IconLike,
   IconComment,
   IconChat,
@@ -20,6 +20,7 @@ import {
   IconSend,
   IconDownload,
 } from "../assets/images";
+import { getUserDataObject } from "./authFunctions";
 
 export function checkPresence(ele) {
   return ele != "undefinedundefined" &&
@@ -94,28 +95,58 @@ export function SidebarCard({
   index,
   isActiveIndex,
   setActiveOption,
+  isCreate,
 }) {
-  return (
-    <Link
-      href={sidebarSection.href}
-      className={`flex items-center py-4 px-4 md:px-8 w-full ${
-        index == isActiveIndex
-          ? "bg-white rounded-r-full"
-          : "bg-neutral-100 hover:bg-neutral-200 hover:rounded-r-full"
-      }`}
-      onClick={() => setActiveOption(index)}
-    >
-      <Image
-        src={sidebarSection.src}
-        alt={sidebarSection.alt}
-        width="26"
-        height="26"
-        className="mx-2"
-        style={{ width: "auto" }}
-      />
-      <p className="mx-2">{sidebarSection.display}</p>
-    </Link>
-  );
+  const [isOpen, setIsOpen] = useState(false);
+  if (!isCreate) {
+    return (
+      <Link
+        href={sidebarSection.href}
+        className={`flex items-center py-4 px-4 md:px-8 w-full  ${
+          index == isActiveIndex
+            ? "bg-white rounded-r-full shadow-sm"
+            : "bg-neutral-100 hover:bg-neutral-200 hover:rounded-r-full "
+        }`}
+        onClick={() => setActiveOption(index)}
+      >
+        <Image
+          src={sidebarSection.src}
+          alt={sidebarSection.alt}
+          width="26"
+          height="26"
+          className="mx-2"
+          style={{ width: "auto" }}
+        />
+
+        <p className="mx-2">{sidebarSection.display}</p>
+      </Link>
+    );
+  } else {
+    return (
+      <div>
+        <button
+          className={`flex items-center py-4 px-4 md:px-8 w-full ${
+            index == isActiveIndex
+              ? "bg-white rounded-r-full shadow-sm"
+              : "bg-neutral-100 hover:bg-neutral-200 hover:rounded-r-full"
+          }`}
+          onClick={() => setIsOpen(true)}
+        >
+          <Image
+            src={sidebarSection.src}
+            alt={sidebarSection.alt}
+            width="26"
+            height="26"
+            className="mx-2"
+            style={{ width: "auto" }}
+          />
+
+          <p className="mx-2">{sidebarSection.display}</p>
+        </button>
+        <CreateModal isOpen={isOpen} setIsOpen={setIsOpen} />
+      </div>
+    );
+  }
 }
 
 export const getTimeDifference = (date) => {
@@ -660,6 +691,70 @@ export function CommentCard({
           />
         )}
       </section>
+    </div>
+  );
+}
+
+export function ChatCard({
+  profilePicUrl,
+  createdByUsername,
+  description,
+  createdAt,
+  chattingWithId,
+  setShowChat,
+  setShowChatsWith,
+}) {
+  return (
+    <button
+      className="flex w-full gap-4 item border-2 rounded-md items-center p-2 mb-2 hover:shadow-md"
+      onClick={() => {
+        setShowChat(true);
+        setShowChatsWith({ username: createdByUsername, id: chattingWithId });
+      }}
+    >
+      <section>
+        <Image
+          src={profilePicUrl || IconUser}
+          alt="icon-user"
+          width={"50"}
+          height={"50"}
+          style={{ width: "auto", height: "auto" }}
+        />
+      </section>
+
+      <section className="flex flex-col gap-2 w-full">
+        <div className="w-full flex justify-between">
+          <span className="font-medium text-lg">{createdByUsername}</span>
+          <span className="text-neutral-400 ml-auto">
+            {getTimeDifference(createdAt)}
+          </span>
+        </div>
+
+        <p className="text-left text-neutral-600 ">{description}</p>
+      </section>
+    </button>
+  );
+}
+
+export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
+  useEffect(() => {
+    fetchChats();
+  }, [showChatsWith.username, showChatsWith.id]);
+  async function fetchChats() {
+    const { token } = getUserDataObject();
+    // const { result } = await callApi(
+    //   "GET",
+    //   `private/self/read-message-inbox/${1}`,
+    //   token
+    // );
+
+    // const result = showChatsWith.id;
+
+    // console.log(result);
+  }
+  return (
+    <div className={`${showChat ? "" : "hidden"}`}>
+      <p> chats will be display here !! {showChatsWith.username}</p>
     </div>
   );
 }

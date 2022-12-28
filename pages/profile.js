@@ -21,7 +21,7 @@ export default function Profile() {
   return (
     <div className="flex bg-neutral-100 w-full min-h-screen h-max">
       <Sidebar selectedOption={4} />
-      <div className="md:w-1/2 flex flex-col gap-6 border-2 rounded-lg p-8 mx-auto bg-white my-4">
+      <div className="md:w-1/2 flex flex-col gap-6 border-2 rounded-lg p-8 mx-auto bg-white my-4 shadow-sm">
         {/* header starts*/}
 
         <div className="flex m-2 justify-between border-b-2 items-center">
@@ -36,8 +36,8 @@ export default function Profile() {
               src={userData?.profile_pic_url}
               alt={userData?.username || "icon"}
               className="rounded-full "
-              width="60"
-              height="60"
+              width="50"
+              height="50"
               style={{ width: "auto", height: "auto" }}
             />
           ) : (
@@ -101,7 +101,7 @@ export default function Profile() {
         <Tab.Group>
           <Tab.List className="bg-neutral-100 rounded-xl flex justify-evenly">
             <Tab
-              className={`p-2 m-4 text-xl`}
+              className={`p-2 m-2 text-lg`}
               id={0}
               onClick={() => setActiveOption(0)}
               style={
@@ -113,7 +113,7 @@ export default function Profile() {
               My Post
             </Tab>
             <Tab
-              className="p-2 m-4 text-xl"
+              className="p-2 m-2 text-lg"
               id={1}
               onClick={() => setActiveOption(1)}
               style={

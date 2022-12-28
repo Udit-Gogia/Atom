@@ -11,7 +11,7 @@ export default function Hub() {
         <div className="flex gap-4">
           <Link
             href={"/create-post-workseeker"}
-            className="flex flex-col gap-2 items-center border-2 hover:border-primaryBlack p-4 rounded-md justify-center text-center basis-1/4 transition-all duration-100"
+            className="flex flex-col gap-2 items-center border-2 hover:border-primaryBlack p-4 rounded-md justify-center text-center basis-1/4 transition-all duration-100 "
           >
             <Image
               src={IconFreelance}
@@ -84,7 +84,10 @@ export default function Hub() {
 
             <p className="font-semibold text-lg">Find Work</p>
           </Link>
-          <section className="flex justify-around p-4 border-2 rounded-md items-center hover:border-primaryBlack transition-all duration-100">
+          <Link
+            href="/feed/service"
+            className="flex justify-around p-4 border-2 rounded-md items-center hover:border-primaryBlack transition-all duration-100"
+          >
             <Image
               src={IconFreelance}
               style={{ width: "50px", height: "50px" }}
@@ -94,7 +97,7 @@ export default function Hub() {
             />
 
             <p className="font-semibold text-lg">Find Services</p>
-          </section>
+          </Link>
           <Link
             href="/feed/workgiver"
             className="flex justify-around p-4 border-2 rounded-md items-center hover:border-primaryBlack transition-all duration-100"

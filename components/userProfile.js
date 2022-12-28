@@ -41,7 +41,7 @@ export default function UserProfile() {
   ];
 
   return (
-    <div className="flex flex-col gap-8 mx-2">
+    <div className="flex flex-col gap-8 mx-2 ">
       <div className="flex gap-4">
         {checkPresence(userInfo?.["profile_pic_url"]) ? (
           <Image

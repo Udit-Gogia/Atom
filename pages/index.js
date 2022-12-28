@@ -43,7 +43,7 @@ export default function Home() {
           <MandatoryCheck isOpen={isOpen} setIsOpen={setIsOpen} />
           <div className="w-full flex flex-col ">
             <Tab.Group defaultIndex={1}>
-              <Tab.List>
+              <Tab.List className="mx-16">
                 <Tab
                   className="p-2 m-4 lg:w-32 text-xl focus:outline-none"
                   id={0}

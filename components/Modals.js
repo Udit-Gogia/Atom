@@ -8,6 +8,7 @@ import { checkPresence, CommentCard } from "../components/cards";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useRouter } from "next/router";
 import callApi from "./callApi";
+import Link from "next/link";
 import Image from "next/image";
 import {
   IconCopy,
@@ -561,3 +562,241 @@ export function CommentModal({ post_id, isOpen, setIsOpen }) {
     </div>
   );
 }
+
+export function CreateModal({ isOpen, setIsOpen }) {
+  const createPostDetails = [
+    {
+      label: "Share your random thoughts",
+      redirect: "/create-post",
+    },
+    {
+      label: "Share a meme",
+      redirect: "/create-post-meme",
+    },
+    {
+      label: "Looking for a job?",
+      redirect: "/create-post-workseeker",
+    },
+    {
+      label: "Looking to hire?",
+      redirect: "/create-post-workgiver",
+    },
+    {
+      label: "List your service ",
+      redirect: "/create-post-service",
+    },
+  ];
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative " onClose={() => {}}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25 min-w-max" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-md transform  rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all min-w-fit flex flex-col gap-4">
+                <div className="flex gap-4 justify-between items-center">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-xl font-medium text-center tracking-wide"
+                  >
+                    What do you want to post?
+                  </Dialog.Title>
+
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="font-semibold  text-xl py-1 px-4 hover:bg-neutral-300 rounded-md"
+                  >
+                    X
+                  </button>
+                </div>
+
+                <div className="flex flex-col gap-4">
+                  {createPostDetails.map((createPostOption, index) => {
+                    return (
+                      <Link
+                        href={createPostOption.redirect}
+                        key={index}
+                        className="flex jutify-around p-4 border-2 rounded-md  transition-all duration-100   hover:shadow-xl hover:border-primaryBlack"
+                      >
+                        {createPostOption.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+}
+
+export const DeleteMsgModal = ({
+  isOpen,
+  setIsOpen,
+  setAllMessages,
+  setUnreadMessageCount,
+}) => {
+  async function deleteAllMessages() {
+    const { token } = getUserDataObject();
+    const { result } = await callApi(
+      "DELETE",
+      `private/self/delete-message-all`,
+      token,
+      null,
+      "all messages deleted successfully"
+    );
+
+    if (result?.status) {
+      setAllMessages([]);
+      return setUnreadMessageCount(0);
+    }
+  }
+
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative " onClose={() => {}}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25 min-w-max" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel
+                className="w-full max-w-md transform  rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all min-w-fit flex flex-col"
+                style={{ gap: "1.5rem" }}
+              >
+                <Dialog.Title
+                  as="h3"
+                  className="text-xl font-medium tracking-wide"
+                >
+                  Delete all chat messages
+                </Dialog.Title>
+
+                <p className="text-neutral-900">
+                  Are you sure you want to delete all chat messages?
+                </p>
+
+                <div className="flex justify-around items-center gap-4">
+                  <button
+                    className="lg:text-lg sm:text-md sm:px-4 tracking-wide  basis-1/3 py-2 text-center border-2 border-[#191919] rounded-lg  hover:bg-neutral-200 transition px-12"
+                    onClick={() => {
+                      setIsOpen(false);
+                    }}
+                  >
+                    cancel
+                  </button>
+                  <button
+                    className="lg:text-lg sm:text-md sm:px-4 tracking-wide bg-[#191919] px-12 py-2  lg:border-2 border-[#191919] rounded-lg text-center text-white basis-2/3 hover:bg-[#404040] "
+                    onClick={() => {
+                      setIsOpen(false);
+                      deleteAllMessages();
+                    }}
+                  >
+                    delete all messages
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+};
+
+export const MessageInfoModal = ({ isOpen, setIsOpen }) => {
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative " onClose={() => {}}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25 min-w-max" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel
+                className="w-full max-w-md transform  rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all min-w-fit flex flex-col"
+                style={{ gap: "0.5rem" }}
+              >
+                <div className="flex gap-4 justify-between items-center">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-xl font-medium text-center tracking-wide"
+                  >
+                    Note
+                  </Dialog.Title>
+
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="font-semibold  text-lg py-1 px-4 hover:bg-neutral-300 rounded-md"
+                  >
+                    X
+                  </button>
+                </div>
+
+                <p className="text-neutral-900">
+                  Old messages will be deleted after 30 days.
+                </p>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+};

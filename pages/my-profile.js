@@ -10,7 +10,7 @@ export default function MyProfile() {
 
   return (
     <div className="w-full bg-neutral-100 min-h-screen">
-      <div className="md:w-1/2 flex flex-col gap-6 border-2 rounded-lg p-8 mx-auto bg-white my-4">
+      <div className="md:w-1/2 flex flex-col gap-6 border-2 rounded-lg p-8 mx-auto bg-white my-4 shadow-sm">
         {/* header starts*/}
         <div className="flex m-2 justify-between border-b-2 items-center">
           <p className="text-xl tracking-wide font-semibold pb-2 w-full ">

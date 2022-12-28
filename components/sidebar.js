@@ -26,7 +26,7 @@ const Sidebar = ({ selectedOption = 0 }) => {
       src: IconChat,
       alt: "icon-chat.png",
       display: "Messages",
-      href: "/my",
+      href: "/message",
     },
     {
       src: IconUser,
@@ -43,6 +43,7 @@ const Sidebar = ({ selectedOption = 0 }) => {
         return (
           <SidebarCard
             sidebarSection={option}
+            isCreate={option.display === "Create" ? true : false}
             key={index}
             index={index}
             isActiveIndex={activeOption}
