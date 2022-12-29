@@ -261,11 +261,12 @@ export function ChatCard({
         </div>
 
         {checkPresence(description) && (
-          <p className="text-left text-neutral-600 ">{description}</p>
+          <p className="text-left text-neutral-600 text-md ">{description}</p>
         )}
 
-        {checkPresence(hasMedia) && !checkPresence(description)}
-        {<p className="text-left text-neutral-600 ">media</p>}
+        {checkPresence(hasMedia) && !checkPresence(description) ? (
+          <p className="text-left text-neutral-400 ">media</p>
+        ) : null}
       </section>
     </button>
   );
@@ -341,9 +342,9 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
     const { token } = getUserDataObject();
     const data = { received_by_id: showChatsWith.id };
     if (checkPresence(file)) {
-      console.log(file);
       data["media_url"] = file;
-    } else if (checkPresence(textMessage)) {
+    }
+    if (checkPresence(textMessage)) {
       data["description"] = textMessage;
     }
 
@@ -360,7 +361,7 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
     if (result?.status) {
       renderChats();
       setFile(null);
-      setTextMessage("");
+      await setTextMessage("");
     }
   };
 
@@ -447,7 +448,7 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
               alt="icon-image"
               width={"30"}
               height={"30"}
-              style={{ width: "30px", height: "30px" }}
+              style={{ width: "30px", height: "30px", minWidth: "30px" }}
             />
           </button>
 
@@ -467,10 +468,11 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
           placeholder="Start typing.."
           className="w-full p-2 focus:outline-neutral-200 "
           onChange={(e) => setTextMessage(e.target.value)}
+          value={textMessage}
         />
 
         {checkPresence(file) && (
-          <div className="w-full p-2 flex gap-4 items-center">
+          <div className="p-2 flex gap-4 items-center flex-col">
             <Image src={file} width={"75"} height={"75"} alt="comment-media" />
 
             <p
@@ -481,7 +483,12 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
             </p>
           </div>
         )}
-        <button onClick={submitFunction}>
+        <button
+          onClick={async () => {
+            await submitFunction("");
+            setTextMessage("");
+          }}
+        >
           <Image
             src={IconSend}
             alt="icon-send"
@@ -500,7 +507,7 @@ export function ReceivedMsg({ msgDetails }) {
     <div className="flex flex-col float-left p-4 neutral-400 gap-4 bg-neutral-100 m-2 py-2 px-4 rounded-md w-fit bg-white">
       <section>
         {checkPresence(msgDetails?.description) && (
-          <p className="text-left text-lg whitespace-pre-wrap text-neutral-700">
+          <p className="text-left text-md whitespace-pre-wrap text-neutral-700">
             {msgDetails?.description}
           </p>
         )}
@@ -525,7 +532,7 @@ export function SentMsg({ msgDetails }) {
     <div className="flex flex-col ml-auto bg-sky-100 p-2 neutral-200 gap-4 m-2 py-2 px-4 rounded-md w-fit">
       <section>
         {checkPresence(msgDetails?.description) && (
-          <p className="text-left text-lg whitespace-pre-wrap text-neutral-700 ">
+          <p className="text-left text-md whitespace-pre-wrap text-neutral-700 ">
             {msgDetails?.description}
           </p>
         )}

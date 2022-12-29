@@ -39,7 +39,7 @@ export default function Message() {
       setUnreadMsgCount(res[0]?.count);
     }
     getMsgCount();
-  }, []);
+  }, [chatlist]);
 
   async function getAllMessages() {
     pageNumber = 1;
