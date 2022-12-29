@@ -442,7 +442,6 @@ export function CommentModal({ post_id, isOpen, setIsOpen }) {
     const { token } = getUserDataObject();
     const data = { post_id };
     if (checkPresence(file)) {
-      console.log(file);
       data["media_url"] = file;
     } else {
       data["description"] = commentDescRef.current.value;
@@ -481,7 +480,6 @@ export function CommentModal({ post_id, isOpen, setIsOpen }) {
             <InfiniteScroll
               dataLength={comments.length * 10}
               next={() => {
-                console.log("reached end of set of comments");
                 getMoreComments();
               }}
               scrollableTarget="commentDiv"

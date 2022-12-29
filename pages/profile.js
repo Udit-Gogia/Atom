@@ -4,32 +4,48 @@ import Image from "next/image";
 import { IconSetting, IconUser, IconStar } from "../assets/images";
 import { useEffect, useState } from "react";
 import { getUserDataObject } from "../components/authFunctions";
-import { checkPresence } from "../components/cards";
+import { checkPresence, getTimeDifference } from "../components/cards";
 import ShowPosts from "../components/showPosts";
 import Sidebar from "../components/sidebar";
 import ShowSelfPosts from "../components/selfPostComponent";
+import callApi from "../components/callApi";
 
 export default function Profile() {
   const [activeOption, setActiveOption] = useState(0);
   const [userData, setUserData] = useState();
+  const [basicInfo, setBasicInfo] = useState();
 
   useEffect(() => {
     const { userInfo } = getUserDataObject();
     const { username, profile_pic_url, rating } = userInfo;
+    getBasicInfo();
     setUserData({ username, profile_pic_url, rating });
   }, []);
+
+  async function getBasicInfo() {
+    const { userInfo } = getUserDataObject();
+    const { id } = userInfo;
+
+    const { result } = await callApi("GET", `public/read-any-user-data/${id}`);
+    const {
+      post_count_total: postCount,
+      like_count_total: likeCount,
+      user,
+    } = result;
+
+    setBasicInfo({ postCount, likeCount, createdAt: user.created_at });
+  }
   return (
     <div className="flex bg-neutral-100 w-full min-h-screen h-max">
       <Sidebar selectedOption={4} />
       <div className="md:w-1/2 flex flex-col gap-6 border-2 rounded-lg p-8 mx-auto bg-white my-4 shadow-sm">
         {/* header starts*/}
 
-        <div className="flex m-2 justify-between border-b-2 items-center">
-          <p className="text-xl tracking-wide font-semibold pb-2 w-full ">
-            My Profile
-          </p>
-        </div>
+        <p className="text-xl m-2  border-b-2  tracking-wide font-semibold pb-2 w-full ">
+          My Profile
+        </p>
 
+        {/* my profile */}
         <div className="flex gap-4">
           {checkPresence(userData?.profile_pic_url) ? (
             <Image
@@ -43,7 +59,7 @@ export default function Profile() {
           ) : (
             <Image
               src={IconUser}
-              alt={userData?.username}
+              alt={userData?.username || "icon"}
               className="rounded-full"
               style={{ width: "auto", height: "auto" }}
               width="50"
@@ -71,6 +87,7 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* three buttons */}
         <div className="flex gap-4 items-center">
           <Link
             href="/my-profile"
@@ -96,6 +113,24 @@ export default function Profile() {
               alt="icon-setting"
             />
           </Link>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          <section className="grid text-center">
+            <p className="text-neutral-500">Days on Atom</p>
+            <p className="font-semibold text-xl">
+              {" "}
+              {getTimeDifference(basicInfo?.createdAt, "days")}{" "}
+            </p>
+          </section>
+          <section className="grid text-center">
+            <p className="text-neutral-500">Total Posts</p>
+            <p className="font-semibold text-xl">{basicInfo?.postCount}</p>
+          </section>
+          <section className="grid text-center">
+            <p className="text-neutral-500">Total Likes</p>
+            <p className="font-semibold text-xl"> {basicInfo?.likeCount} </p>
+          </section>
         </div>
 
         <Tab.Group>

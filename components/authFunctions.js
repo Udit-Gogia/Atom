@@ -57,10 +57,8 @@ export async function loginUser(username, password) {
       checkPresence(userInfo?.tag) &&
       checkPresence(userInfo?.profile_pic_url)
     ) {
-      console.log("data is missing");
       setUserDataObject({ mandatory_check: true });
     } else {
-      console.log("data is not missing");
       setUserDataObject({ mandatory_check: false });
     }
   }

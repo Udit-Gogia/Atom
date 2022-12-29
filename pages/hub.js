@@ -8,7 +8,7 @@ export default function Hub() {
         <p className="font-semibold tracking-wide text-2xl">
           Add your Requirements
         </p>
-        <div className="flex gap-4">
+        <div className="grid md:grid-cols-4 grid-cols-2 gap-4">
           <Link
             href={"/create-post-workseeker"}
             className="flex flex-col gap-2 items-center border-2 hover:border-primaryBlack p-4 rounded-md justify-center text-center basis-1/4 transition-all duration-100 "

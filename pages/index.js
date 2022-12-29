@@ -33,17 +33,8 @@ export default function Home() {
         checkPresence(userDataObject?.userInfo?.profile_pic_url)
       )
     ) {
-      console.log("data is missing in index.js");
-      console.log(userDataObject);
-      console.log(
-        checkPresence(userDataObject?.userInfo?.designation),
-        checkPresence(userDataObject?.userInfo?.country),
-        checkPresence(userDataObject?.userInfo?.tag),
-        checkPresence(userDataObject?.userInfo?.profile_pic_url)
-      );
       setIsOpen(true);
     } else {
-      console.log("data is not missing in index.js");
       setIsOpen(false);
     }
   }, []);
@@ -57,7 +48,7 @@ export default function Home() {
           <MandatoryCheck isOpen={isOpen} setIsOpen={setIsOpen} />
           <div className="w-full flex flex-col ">
             <Tab.Group defaultIndex={1}>
-              <Tab.List className="mx-16">
+              <Tab.List className="md:mx-16 sm:mx-0">
                 <Tab
                   className="p-2 m-4 lg:w-32 text-xl focus:outline-none"
                   id={0}

@@ -74,12 +74,9 @@ export default function CreatePostWorkseeker({ workProfile }) {
     description: "",
   });
 
-  console.log("empty formdata is", formData);
-
   const [tagText, setTagText] = useState("");
 
   function updateFormData(event) {
-    // console.log(event);
     const Name = event.target.name;
     const value = event.target.value;
 
@@ -100,7 +97,6 @@ export default function CreatePostWorkseeker({ workProfile }) {
           onSubmit={async (e) => {
             e.preventDefault();
 
-            console.log(formData);
             const res = await createPost(formData, "create-post-workseeker");
 
             if (res?.status) {

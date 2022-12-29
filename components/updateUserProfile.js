@@ -122,7 +122,6 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
   useEffect(() => {
     async function getUserInfo() {
       const { userInfo, country, designation } = getUserDataObject();
-      console.log(userInfo);
 
       let newDesignation = designation.map((intName) => {
         return { value: intName.title, label: intName.title };
@@ -164,9 +163,6 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
         id="editUserProfile"
         onSubmit={(e) => {
           e.preventDefault();
-          try {
-            console.log("CUurrent user profile is ", currUserData);
-          } catch (e) {}
         }}
       >
         {/* profile pic changed */}

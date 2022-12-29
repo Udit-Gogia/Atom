@@ -190,7 +190,7 @@ export default function Message() {
       <div
         className={`${
           showChat ? "" : "hidden"
-        } basis-5/12 flex flex-col gap-4 border-2 border-neutral-300 rounded-lg sm:mx-auto bg-white shadow-sm sm:w-full md:m-4 `}
+        } basis-4/12 flex flex-col gap-4 border-2 border-neutral-300 rounded-lg sm:mx-auto bg-white shadow-sm sm:w-full md:m-4 max-w-[40vw]`}
       >
         <ShowChatCard
           showChat={showChat}

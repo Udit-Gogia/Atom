@@ -21,7 +21,6 @@ export const createPost = async (dataObject, url) => {
 };
 
 export const createLead = async (dataObject) => {
-  console.log(dataObject);
   Object.keys(dataObject).forEach(
     (key) => !checkPresence(dataObject[key]) && delete dataObject[key]
   );
@@ -136,11 +135,6 @@ export async function deleteBookmark(bookmarkId) {
 
 export async function rateUser(ratingToId, rating) {
   const token = await JSON.parse(localStorage.getItem("userData"))?.token;
-
-  console.log("inside rate user data receives is ", {
-    received_by_id: ratingToId,
-    rating,
-  });
 
   const { response, result } = await callApi(
     "POST",

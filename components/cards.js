@@ -151,11 +151,17 @@ export function SidebarCard({
   }
 }
 
-export const getTimeDifference = (date) => {
+export const getTimeDifference = (date, format = null) => {
   const formattedDate = Date.parse(date);
   const currDate = new Date();
   const formattedCurrDate = Date.parse(currDate);
   const timeDiffInSeconds = (formattedCurrDate - formattedDate) / 1000;
+
+  switch (format) {
+    case "days":
+      return parseInt(parseInt(timeDiffInSeconds / 86400));
+      break;
+  }
 
   if (timeDiffInSeconds < 60) {
     return "right now";
@@ -231,7 +237,7 @@ export function ChatCard({
 }) {
   return (
     <button
-      className="flex w-full gap-4 item border-2 rounded-md items-center p-2 mb-2 hover:shadow-md"
+      className="flex gap-4 border-2 rounded-md items-center p-2 mb-2 hover:shadow-md justify-start"
       onClick={() => {
         setShowChat(true);
         setShowChatsWith({
@@ -252,16 +258,26 @@ export function ChatCard({
       </section>
 
       <section className="flex flex-col gap-2 w-full">
-        <div className="w-full flex justify-between">
+        <div className="w-full flex ">
           <span className="font-medium text-lg">{createdByUsername}</span>
 
-          <span className="text-neutral-400 ml-auto">
+          <span className="text-neutral-400 ml-auto mr-4">
             {getTimeDifference(createdAt)}
           </span>
         </div>
 
         {checkPresence(description) && (
-          <p className="text-left text-neutral-600 text-md ">{description}</p>
+          <p
+            className="text-left text-neutral-600 text-md"
+            style={{
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              width: "26rem",
+              whiteSpace: "pre",
+            }}
+          >
+            {description}
+          </p>
         )}
 
         {checkPresence(hasMedia) && !checkPresence(description) ? (
@@ -292,7 +308,6 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
     const { userInfo } = getUserDataObject();
     const { id } = userInfo;
     setUserId(id);
-    console.log("entered with data as ", showChatsWith);
   }, [showChatsWith.username, showChatsWith.id]);
 
   const renderChats = async () => {
@@ -305,7 +320,7 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
         `private/self/read-message-thread/${showChatsWith?.id}/${pageNumber}`,
         token
       );
-      console.log(result);
+
       await setDisplayComments(result);
 
       setMoreComments(checkPresence(result) && Array.isArray(result));
@@ -367,14 +382,14 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
 
   return (
     <div className={`${showChat ? "" : "hidden"} flex flex-col h-full `}>
-      <div className=" flex gap-4 p-4 items-center rounded-t-md border-b-2 border-neutral-300">
+      <div className=" flex gap-4 p-2 items-center rounded-t-md border-b-2 border-neutral-300">
         <button onClick={() => setShowChat(false)}>
           <Image
             src={IconArrow}
             width={"25"}
             height={"25"}
             alt="icon-arrow"
-            style={{ width: "20px", height: "20px" }}
+            style={{ width: "15px", height: "15px" }}
           />
         </button>
 
@@ -384,12 +399,12 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
             alt="icon-user"
             width={"40"}
             height={"40"}
-            style={{ width: "40px", height: "40px" }}
+            style={{ width: "35px", height: "35px" }}
           />
         </section>
 
         <section>
-          <p className="text-xl ">{showChatsWith?.username}</p>
+          <p className="textmd">{showChatsWith?.username}</p>
         </section>
 
         <section className="ml-auto">
@@ -402,7 +417,7 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
       </div>
       <div
         id="scrollableDiv"
-        className="flex flex-col gap-4 bg-neutral-200 h-full max-h-[80vh]"
+        className="flex flex-col gap-4 bg-neutral-200 h-full max-h-[80vh] p-2"
         style={{ height: "100%", overflow: "auto" }}
       >
         <InfiniteScroll
@@ -423,10 +438,8 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
           {Array.isArray(displayComments) && checkPresence(displayComments) ? (
             displayComments?.map((message, index) => {
               if (userId === message.created_by_id) {
-                console.log("This message is created by me");
                 return <SentMsg msgDetails={message} key={index} />;
               } else {
-                console.log("This message is received by me");
                 return <ReceivedMsg msgDetails={message} key={index} />;
               }
             })
@@ -502,9 +515,8 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
 }
 
 export function ReceivedMsg({ msgDetails }) {
-  console.log("inside received message ", msgDetails);
   return (
-    <div className="flex flex-col float-left p-4 neutral-400 gap-4 bg-neutral-100 m-2 py-2 px-4 rounded-md w-fit bg-white">
+    <div className="flex flex-col float-left p-4 neutral-400 gap-4 bg-neutral-100 my-2 py-2 px-4 rounded-md w-fit bg-white max-w-[70%]">
       <section>
         {checkPresence(msgDetails?.description) && (
           <p className="text-left text-md whitespace-pre-wrap text-neutral-700">
@@ -527,9 +539,8 @@ export function ReceivedMsg({ msgDetails }) {
 }
 
 export function SentMsg({ msgDetails }) {
-  console.log("inside sent message ", msgDetails);
   return (
-    <div className="flex flex-col ml-auto bg-sky-100 p-2 neutral-200 gap-4 m-2 py-2 px-4 rounded-md w-fit">
+    <div className="flex flex-col ml-auto bg-sky-100 p-2 neutral-200 gap-4 m-2 py-2 px-4 rounded-md w-fit max-w-[70%]">
       <section>
         {checkPresence(msgDetails?.description) && (
           <p className="text-left text-md whitespace-pre-wrap text-neutral-700 ">
@@ -611,7 +622,7 @@ export function PostCard({
 
   const getMoreComments = async () => {
     pageNumber++;
-    console.log("inside getmoreComments ", pageNumber);
+
     const { result: res } = await callApi(
       "GET",
       `public/read-comment/${pageNumber}?post_id=${postId}`
@@ -635,7 +646,6 @@ export function PostCard({
     const { token } = getUserDataObject();
     const data = { post_id: postId };
     if (checkPresence(file)) {
-      console.log(file);
       data["media_url"] = file;
     } else {
       data["description"] = commentDescRef.current.value;
@@ -653,7 +663,6 @@ export function PostCard({
     if (result?.status) {
       renderComments();
       setFile(null);
-      // commentDescRef.current.value = commentDescRef.current.value && null;
     }
   };
 
@@ -860,9 +869,9 @@ export function PostCard({
                   pageNumber = 1;
                   setShowComments(!showComments);
                   pageNumber = 1;
-                  console.log("comment button clicked ", pageNumber);
+
                   var currpage = await renderComments();
-                  console.log("curr page", currpage);
+
                   return setPageNumber(1);
                 }}
                 className="hover:bg-neutral-200 rounded-md flex gap-2 p-2 items-center"

@@ -162,8 +162,6 @@ export default function DeleteMyAccount() {
                             })
                           );
 
-                          console.log(result);
-
                           if (result?.status) {
                             await deleteUser();
 

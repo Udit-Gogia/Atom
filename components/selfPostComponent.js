@@ -7,9 +7,6 @@ import { useRouter } from "next/router";
 import { getUserDataObject } from "./authFunctions";
 
 export default function SelfPostComponent({ url, type, query }) {
-  //   const router = useRouter();
-
-  console.log(`${url}/${type}/${query}`);
   const [posts, setPosts] = useState([]);
   let [hasMore, setHasMore] = useState(true);
   let [pageNumber, setPageNumber] = useState(1);
