@@ -3,6 +3,7 @@ import { validateRes } from "./authFunctions";
 import callApi from "./callApi";
 import { checkPresence } from "./cards";
 import { alertUser } from "./Modals";
+import { IconLoader } from "../assets/images";
 
 export const compressFile = async (image) => {
   const options = {
@@ -20,6 +21,7 @@ export const compressFile = async (image) => {
 };
 
 export const handleFileInput = async (e, setFile) => {
+  setFile(IconLoader);
   const file = e.target.files && e.target.files[0];
   const { token } = JSON.parse(localStorage.getItem("userData"));
   if (file?.size > 5e6) {

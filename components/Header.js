@@ -12,7 +12,7 @@ export default function Header() {
           height={"40"}
           width={"40"}
           priority={true}
-          style={{ width: "auto", height: "auto" }}
+          style={{ width: "35px", height: "35px" }}
         />
         <Link href="/">
           <p className="font-semibold text-xl">atom</p>

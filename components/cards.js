@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import parseTag from "./parseTag";
 import { likePost, verifyLikedPosts } from "./postFunctions";
 import { useRouter } from "next/router";
+import { handleFileInput } from "./fileFunctions";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { CreateModal } from "./Modals";
 import DropDown from "./Dropdown";
@@ -19,8 +20,9 @@ import {
   IconImage,
   IconSend,
   IconDownload,
+  IconArrow,
 } from "../assets/images";
-import { getUserDataObject } from "./authFunctions";
+import { getUserDataObject, validateRes } from "./authFunctions";
 
 export function checkPresence(ele) {
   return ele != "undefinedundefined" &&
@@ -170,6 +172,379 @@ export const getTimeDifference = (date) => {
   return "show time diff";
 };
 
+export function CommentCard({
+  description,
+  createdAt,
+  createdByProfilePicUrl,
+  mediaUrl,
+  createdById,
+  createdByUsername,
+}) {
+  return (
+    <div className="flex w-full gap-2 h-fit">
+      <section>
+        <Image
+          src={createdByProfilePicUrl || IconUser}
+          width={"40"}
+          height={"40"}
+          style={{ width: "40px", height: "40px" }}
+          alt="user-img"
+          className="rounded-full"
+        />
+      </section>
+
+      <section className="flex flex-col gap-4 p-4 w-full bg-white rounded-md h-fit">
+        <section className="flex justify-between">
+          <p className="font-semibold text-lg">{createdByUsername}</p>
+          <p className="ml-auto">{getTimeDifference(createdAt)}</p>
+        </section>
+
+        {checkPresence(description) && (
+          <p className="text-left text-lg whitespace-pre-wrap text-neutral-700">
+            {description}
+          </p>
+        )}
+
+        {checkPresence(mediaUrl) && (
+          <Image
+            src={mediaUrl}
+            width={"100"}
+            height={"100"}
+            style={{ width: "100px", height: "100px" }}
+            alt="comment-media"
+          />
+        )}
+      </section>
+    </div>
+  );
+}
+
+export function ChatCard({
+  profilePicUrl,
+  createdByUsername,
+  description,
+  createdAt,
+  chattingWithId,
+  setShowChat,
+  hasMedia,
+  setShowChatsWith,
+}) {
+  return (
+    <button
+      className="flex w-full gap-4 item border-2 rounded-md items-center p-2 mb-2 hover:shadow-md"
+      onClick={() => {
+        setShowChat(true);
+        setShowChatsWith({
+          username: createdByUsername,
+          id: chattingWithId,
+          profilePicUrl: profilePicUrl ? profilePicUrl : IconUser,
+        });
+      }}
+    >
+      <section>
+        <Image
+          src={profilePicUrl || IconUser}
+          alt="icon-user"
+          width={"50"}
+          height={"50"}
+          style={{ width: "auto", height: "auto" }}
+        />
+      </section>
+
+      <section className="flex flex-col gap-2 w-full">
+        <div className="w-full flex justify-between">
+          <span className="font-medium text-lg">{createdByUsername}</span>
+
+          <span className="text-neutral-400 ml-auto">
+            {getTimeDifference(createdAt)}
+          </span>
+        </div>
+
+        {checkPresence(description) && (
+          <p className="text-left text-neutral-600 ">{description}</p>
+        )}
+
+        {checkPresence(hasMedia) && !checkPresence(description)}
+        {<p className="text-left text-neutral-600 ">media</p>}
+      </section>
+    </button>
+  );
+}
+
+export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
+  const [displayComments, setDisplayComments] = useState([]);
+  let [newComments, setNewComments] = useState([]);
+  let [pageNumber, setPageNumber] = useState(1);
+  let [moreComments, setMoreComments] = useState(true);
+  const [textMessage, setTextMessage] = useState("");
+  const [file, setFile] = useState(null);
+  const [userId, setUserId] = useState(null);
+
+  const inputRef = useRef(null);
+
+  const initiateFileInput = () => {
+    inputRef.current.click();
+  };
+
+  useEffect(() => {
+    renderChats();
+    const { userInfo } = getUserDataObject();
+    const { id } = userInfo;
+    setUserId(id);
+    console.log("entered with data as ", showChatsWith);
+  }, [showChatsWith.username, showChatsWith.id]);
+
+  const renderChats = async () => {
+    if (showChatsWith?.id) {
+      pageNumber = 1;
+      const { token } = getUserDataObject();
+
+      const { result } = await callApi(
+        "GET",
+        `private/self/read-message-thread/${showChatsWith?.id}/${pageNumber}`,
+        token
+      );
+      console.log(result);
+      await setDisplayComments(result);
+
+      setMoreComments(checkPresence(result) && Array.isArray(result));
+
+      return pageNumber;
+    }
+  };
+
+  const getMoreChats = async () => {
+    pageNumber++;
+    const { token } = getUserDataObject();
+    const { result: res } = await callApi(
+      "GET",
+      `private/self/read-message-thread/${showChatsWith.id}/${pageNumber}`,
+      token
+    );
+
+    if (res != "no data") {
+      if (res[0]?.post_id === 10) {
+        await setMorePosts(false);
+      }
+
+      if (res?.length != 0) {
+        (await Array.isArray(res)) &&
+          setDisplayComments((displayComments) => [...displayComments, ...res]);
+      }
+    } else {
+      setMoreComments(false);
+    }
+    setMoreComments(checkPresence(res) && Array.isArray(res));
+  };
+
+  const submitFunction = async () => {
+    const { token } = getUserDataObject();
+    const data = { received_by_id: showChatsWith.id };
+    if (checkPresence(file)) {
+      console.log(file);
+      data["media_url"] = file;
+    } else if (checkPresence(textMessage)) {
+      data["description"] = textMessage;
+    }
+
+    const { response, result } = await callApi(
+      "POST",
+      "private/all/create-message",
+      token,
+      JSON.stringify(data)
+    );
+
+    validateRes(response, result);
+
+    result?.status;
+    if (result?.status) {
+      renderChats();
+      setFile(null);
+      setTextMessage("");
+    }
+  };
+
+  return (
+    <div className={`${showChat ? "" : "hidden"} flex flex-col h-full `}>
+      <div className=" flex gap-4 p-4 items-center rounded-t-md border-b-2 border-neutral-300">
+        <button onClick={() => setShowChat(false)}>
+          <Image
+            src={IconArrow}
+            width={"25"}
+            height={"25"}
+            alt="icon-arrow"
+            style={{ width: "20px", height: "20px" }}
+          />
+        </button>
+
+        <section>
+          <Image
+            src={showChatsWith?.profilePicUrl || IconUser}
+            alt="icon-user"
+            width={"40"}
+            height={"40"}
+            style={{ width: "40px", height: "40px" }}
+          />
+        </section>
+
+        <section>
+          <p className="text-xl ">{showChatsWith?.username}</p>
+        </section>
+
+        <section className="ml-auto">
+          <DropDown
+            username={showChatsWith?.username}
+            createdById={showChatsWith?.id}
+            type={"chats"}
+          />
+        </section>
+      </div>
+      <div
+        id="scrollableDiv"
+        className="flex flex-col gap-4 bg-neutral-200 h-full max-h-[80vh]"
+        style={{ height: "100%", overflow: "auto" }}
+      >
+        <InfiniteScroll
+          dataLength={displayComments?.length}
+          style={{
+            display: "flex",
+            flexDirection: "column-reverse",
+          }}
+          refreshFunction={getMoreChats}
+          next={() => {
+            getMoreChats();
+            setPageNumber((pageNumber) => pageNumber + 1);
+          }}
+          hasMore={moreComments}
+          scrollableTarget="scrollableDiv"
+          scrollThreshold={0.8}
+        >
+          {Array.isArray(displayComments) && checkPresence(displayComments) ? (
+            displayComments?.map((message, index) => {
+              if (userId === message.created_by_id) {
+                console.log("This message is created by me");
+                return <SentMsg msgDetails={message} key={index} />;
+              } else {
+                console.log("This message is received by me");
+                return <ReceivedMsg msgDetails={message} key={index} />;
+              }
+            })
+          ) : (
+            <p>no messages</p>
+          )}
+        </InfiniteScroll>
+      </div>
+      {/* new message input */}
+      <div className="flex gap-2 p-2 border-t-2 mt-auto border-neutral-300">
+        <div className="flex items-center ">
+          <button
+            type="button"
+            onClick={initiateFileInput}
+            className="rounded-md hover:border-primaryBlack transition-all items-center"
+          >
+            <Image
+              src={IconImage}
+              alt="icon-image"
+              width={"30"}
+              height={"30"}
+              style={{ width: "30px", height: "30px" }}
+            />
+          </button>
+
+          <input
+            type="file"
+            style={{ display: "none" }}
+            ref={inputRef}
+            accept="image/*"
+            onClick={(e) => handleFileInput(e, setFile)}
+            onChange={(e) => handleFileInput(e, setFile)}
+            name="file-input"
+          />
+        </div>
+
+        <input
+          type="text"
+          placeholder="Start typing.."
+          className="w-full p-2 focus:outline-neutral-200 "
+          onChange={(e) => setTextMessage(e.target.value)}
+        />
+
+        {checkPresence(file) && (
+          <div className="w-full p-2 flex gap-4 items-center">
+            <Image src={file} width={"75"} height={"75"} alt="comment-media" />
+
+            <p
+              className={`hover:underline hover:cursor-pointer border-2 px-4 py-2 rounded-md hover:border-primaryBlack`}
+              onClick={() => setFile(null)}
+            >
+              remove{" "}
+            </p>
+          </div>
+        )}
+        <button onClick={submitFunction}>
+          <Image
+            src={IconSend}
+            alt="icon-send"
+            style={{ width: "30px", height: "25px" }}
+            className="ml-auto"
+          />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function ReceivedMsg({ msgDetails }) {
+  console.log("inside received message ", msgDetails);
+  return (
+    <div className="flex flex-col float-left p-4 neutral-400 gap-4 bg-neutral-100 m-2 py-2 px-4 rounded-md w-fit bg-white">
+      <section>
+        {checkPresence(msgDetails?.description) && (
+          <p className="text-left text-lg whitespace-pre-wrap text-neutral-700">
+            {msgDetails?.description}
+          </p>
+        )}
+      </section>
+      {checkPresence(msgDetails?.media_url) && (
+        <Image
+          className={` rounded-md mx-auto`}
+          src={msgDetails?.media_url}
+          style={{ width: "auto" }}
+          alt={"chat media"}
+          width="200"
+          height="250"
+        />
+      )}
+    </div>
+  );
+}
+
+export function SentMsg({ msgDetails }) {
+  console.log("inside sent message ", msgDetails);
+  return (
+    <div className="flex flex-col ml-auto bg-sky-100 p-2 neutral-200 gap-4 m-2 py-2 px-4 rounded-md w-fit">
+      <section>
+        {checkPresence(msgDetails?.description) && (
+          <p className="text-left text-lg whitespace-pre-wrap text-neutral-700 ">
+            {msgDetails?.description}
+          </p>
+        )}
+      </section>
+
+      {checkPresence(msgDetails?.media_url) && (
+        <Image
+          className={` rounded-md mx-auto`}
+          src={msgDetails?.media_url}
+          style={{ width: "auto" }}
+          alt={"chat media"}
+          width="100"
+          height="150"
+        />
+      )}
+    </div>
+  );
+}
+
 export function PostCard({
   postId,
   createdById,
@@ -223,7 +598,6 @@ export function PostCard({
       `public/read-comment/${pageNumber}?post_id=${postId}`
     );
     await setDisplayComments(result);
-    console.log("inside renderComments ", pageNumber);
 
     return pageNumber;
   };
@@ -252,7 +626,7 @@ export function PostCard({
 
   const submitFunction = async () => {
     const { token } = getUserDataObject();
-    const data = { post_id };
+    const data = { post_id: postId };
     if (checkPresence(file)) {
       console.log(file);
       data["media_url"] = file;
@@ -265,13 +639,14 @@ export function PostCard({
       "private/all/create-comment",
       token,
       JSON.stringify(data),
-      "post created successfully"
+      "comment created successfully"
     );
 
     result?.status;
     if (result?.status) {
-      fetchComments();
-      commentDescRef.current.value = null;
+      renderComments();
+      setFile(null);
+      // commentDescRef.current.value = commentDescRef.current.value && null;
     }
   };
 
@@ -512,11 +887,7 @@ export function PostCard({
               <p className="ml-auto">{getTimeDifference(postCreatedAt)}</p>
             </div>
           </div>
-          {/* <CommentModal
-            isOpen={showComments}
-            setIsOpen={setShowComments}
-            post_id={postId}
-          /> */}
+
           <div className={`${showComments ? "" : "hidden"}  `}>
             <div className={`h-full inset-0 overflow-y-auto `}>
               <div
@@ -645,116 +1016,5 @@ export function PostCard({
         </div>
       )}
     </>
-  );
-}
-
-export function CommentCard({
-  description,
-  createdAt,
-  createdByProfilePicUrl,
-  mediaUrl,
-  createdById,
-  createdByUsername,
-}) {
-  return (
-    <div className="flex w-full gap-2 h-fit">
-      <section>
-        <Image
-          src={createdByProfilePicUrl || IconUser}
-          width={"40"}
-          height={"40"}
-          style={{ width: "40px", height: "40px" }}
-          alt="user-img"
-          className="rounded-full"
-        />
-      </section>
-
-      <section className="flex flex-col gap-4 p-4 w-full bg-white rounded-md h-fit">
-        <section className="flex justify-between">
-          <p className="font-semibold text-lg">{createdByUsername}</p>
-          <p className="ml-auto">{getTimeDifference(createdAt)}</p>
-        </section>
-
-        {checkPresence(description) && (
-          <p className="text-left text-lg whitespace-pre-wrap text-neutral-700">
-            {description}
-          </p>
-        )}
-
-        {checkPresence(mediaUrl) && (
-          <Image
-            src={mediaUrl}
-            width={"100"}
-            height={"100"}
-            style={{ width: "100px", height: "100px" }}
-            alt="comment-media"
-          />
-        )}
-      </section>
-    </div>
-  );
-}
-
-export function ChatCard({
-  profilePicUrl,
-  createdByUsername,
-  description,
-  createdAt,
-  chattingWithId,
-  setShowChat,
-  setShowChatsWith,
-}) {
-  return (
-    <button
-      className="flex w-full gap-4 item border-2 rounded-md items-center p-2 mb-2 hover:shadow-md"
-      onClick={() => {
-        setShowChat(true);
-        setShowChatsWith({ username: createdByUsername, id: chattingWithId });
-      }}
-    >
-      <section>
-        <Image
-          src={profilePicUrl || IconUser}
-          alt="icon-user"
-          width={"50"}
-          height={"50"}
-          style={{ width: "auto", height: "auto" }}
-        />
-      </section>
-
-      <section className="flex flex-col gap-2 w-full">
-        <div className="w-full flex justify-between">
-          <span className="font-medium text-lg">{createdByUsername}</span>
-          <span className="text-neutral-400 ml-auto">
-            {getTimeDifference(createdAt)}
-          </span>
-        </div>
-
-        <p className="text-left text-neutral-600 ">{description}</p>
-      </section>
-    </button>
-  );
-}
-
-export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
-  useEffect(() => {
-    fetchChats();
-  }, [showChatsWith.username, showChatsWith.id]);
-  async function fetchChats() {
-    const { token } = getUserDataObject();
-    // const { result } = await callApi(
-    //   "GET",
-    //   `private/self/read-message-inbox/${1}`,
-    //   token
-    // );
-
-    // const result = showChatsWith.id;
-
-    // console.log(result);
-  }
-  return (
-    <div className={`${showChat ? "" : "hidden"}`}>
-      <p> chats will be display here !! {showChatsWith.username}</p>
-    </div>
   );
 }

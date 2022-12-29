@@ -52,10 +52,10 @@ export async function loginUser(username, password) {
     await setUserDataObject("userInfo", userInfo);
 
     if (
-      checkPresence(userInfo.designation) &&
-      checkPresence(userInfo.country) &&
-      checkPresence(userInfo.tag) &&
-      checkPresence(userInfo.profile_pic_url)
+      checkPresence(userInfo?.designation) &&
+      checkPresence(userInfo?.country) &&
+      checkPresence(userInfo?.tag) &&
+      checkPresence(userInfo?.profile_pic_url)
     ) {
       console.log("data is missing");
       setUserDataObject({ mandatory_check: true });
@@ -96,7 +96,7 @@ export async function deleteUser() {
     "private/self/delete-user",
     token
   );
-
+  updateUserDataObject({ mandatory_check: false, userInfo: undefined });
   return validateRes(response, result);
 }
 

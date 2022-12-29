@@ -78,7 +78,7 @@ export async function bookmarkPost(post_id) {
   return result;
 }
 
-export async function reportPost(post_id, reportCreatedById) {
+export async function reportPost(post_id, description = null) {
   const { id } = getUserDataObject("userInfo");
 
   const { response, result } = await callApi(
@@ -88,22 +88,28 @@ export async function reportPost(post_id, reportCreatedById) {
     JSON.stringify({
       post_id,
       created_by_id: id,
+      description,
     }),
     "post reported successfully"
   );
 
-  validateRes(response, result);
+  return validateRes(response, result);
 }
 
-export async function reportUser(reportingUserid, reportCreatedById = 1) {
-  const res = await callApi(
+export async function reportUser(
+  reportingUserid,
+  reportCreatedById = 1,
+  description = null
+) {
+  const { result: res } = await callApi(
     "POST",
+    "public/create-report-user",
+    null,
     JSON.stringify({
       received_by_id: reportingUserid,
-      created_by_id: id,
+      created_by_id: reportCreatedById,
+      description,
     }),
-    null,
-    "public/create-report-user",
     "user reported successfully"
   );
 
@@ -150,14 +156,27 @@ export async function rateUser(ratingToId, rating) {
   return validateRes(response, result);
 }
 
-export async function blockUser(received_by_id, token) {
+export async function blockUser(received_by_id) {
+  const { token } = getUserDataObject();
   await callApi(
     "POST",
     "private/all/create-block-user",
+    token,
     JSON.stringify({
       received_by_id,
     }),
-    token,
     "user blocked successfully"
   );
+}
+
+export async function deleteMsgsWithUser(user_id) {
+  const { token } = getUserDataObject();
+
+  const { response, result } = await callApi(
+    "DELETE",
+    `private/self/delete-message-thread/${user_id}`,
+    token
+  );
+
+  return validateRes(response, result);
 }

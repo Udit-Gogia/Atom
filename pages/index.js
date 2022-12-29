@@ -8,6 +8,10 @@ import parseTag, { tagName } from "../components/parseTag";
 import { checkPresence } from "../components/cards";
 import { useRouter } from "next/router";
 import { MandatoryCheck } from "../components/Modals";
+import {
+  getUserDataObject,
+  updateUserDataObject,
+} from "../components/authFunctions";
 
 export default function Home() {
   const [isAuth, setAuth] = useState(false);
@@ -15,21 +19,31 @@ export default function Home() {
   const [username, setUsername] = useState();
 
   useEffect(() => {
-    const userDataObject = JSON.parse(localStorage.getItem("userData"));
+    const userDataObject = getUserDataObject();
+
     userDataObject?.hasOwnProperty("token") ? setAuth(true) : setAuth(false);
+
     setUsername(userDataObject?.userInfo?.username);
 
     if (
       !(
-        checkPresence(userDataObject?.userInfo.designation) &&
-        checkPresence(userDataObject?.userInfo.country) &&
-        checkPresence(userDataObject?.userInfo.tag) &&
-        checkPresence(userDataObject?.userInfo.profile_pic_url)
+        checkPresence(userDataObject?.userInfo?.designation) &&
+        checkPresence(userDataObject?.userInfo?.country) &&
+        checkPresence(userDataObject?.userInfo?.tag) &&
+        checkPresence(userDataObject?.userInfo?.profile_pic_url)
       )
     ) {
+      console.log("data is missing in index.js");
+      console.log(userDataObject);
+      console.log(
+        checkPresence(userDataObject?.userInfo?.designation),
+        checkPresence(userDataObject?.userInfo?.country),
+        checkPresence(userDataObject?.userInfo?.tag),
+        checkPresence(userDataObject?.userInfo?.profile_pic_url)
+      );
       setIsOpen(true);
     } else {
-      console.log("data is not missing here");
+      console.log("data is not missing in index.js");
       setIsOpen(false);
     }
   }, []);

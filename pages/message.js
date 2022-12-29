@@ -14,7 +14,6 @@ async function fetchUnreadMessageCount(id) {
     `public/read-any-user-total-unread-message-count/${id}`
   );
 
-  console.log(result);
   return result;
 }
 
@@ -51,9 +50,7 @@ export default function Message() {
       token
     );
 
-    const { id } = userInfo;
-
-    console.log(chatRes);
+    const { id: selfId } = userInfo;
 
     checkPresence(chatRes) &&
       chatRes?.map((chat, idx) => {
@@ -70,9 +67,9 @@ export default function Message() {
         } = chat;
 
         const chatDetails =
-          id === received_by_id
+          selfId === received_by_id
             ? {
-                id: created_by_id,
+                chattingWithId: created_by_id,
                 username: created_by_username,
                 profile: created_by_profile_pic_url,
                 description,
@@ -80,9 +77,9 @@ export default function Message() {
                 created_at,
               }
             : {
+                chattingWithId: received_by_id,
                 description,
                 media_url,
-                id: received_by_id,
                 username: received_by_username,
                 profile: received_by_profile_pic_url,
                 created_at,
@@ -92,7 +89,7 @@ export default function Message() {
         setChatList(chatsWith);
 
         Array.isArray(chatRes) && checkPresence(chatRes)
-          ? setChatList(chatRes)
+          ? setChatList(chatsWith)
           : setHasMore(false);
       });
   }
@@ -156,35 +153,35 @@ export default function Message() {
           </div>
         </div>
         {/* show all messages */}
-        <section className="basis-1/2">
+        <section className="basis-1/2 flex flex-col">
           <InfiniteScroll
             dataLength={chatlist?.length}
             next={() => {
               getMoreMessages();
             }}
             hasMore={hasMore}
-            loader={<p>loading ...</p>}
-            endMessage={chatlist.length === 0 && <p>No more chats</p>}
           >
-            {Array.isArray(chatlist) && checkPresence(chatlist) ? (
-              chatlist.map((chat, idx) => {
-                return (
-                  <ChatCard
-                    key={idx}
-                    chattingWithId={chat?.id}
-                    profilePicUrl={chat?.profile}
-                    createdByUsername={chat?.created_by_username}
-                    receivedByUsername={chat?.received_by_username}
-                    description={chat?.description}
-                    createdAt={chat?.created_at}
-                    setShowChat={setShowChat}
-                    setShowChatsWith={setShowChatsWith}
-                  />
-                );
-              })
-            ) : (
-              <p>No more messages</p>
-            )}
+            <div className="flex flex-col">
+              {Array.isArray(chatlist) && checkPresence(chatlist) ? (
+                chatlist.map((chat, idx) => {
+                  return (
+                    <ChatCard
+                      key={idx}
+                      chattingWithId={chat?.chattingWithId}
+                      profilePicUrl={chat?.profile}
+                      createdByUsername={chat?.username}
+                      description={chat?.description}
+                      createdAt={chat?.created_at}
+                      hasMedia={checkPresence(chat?.media_url)}
+                      setShowChat={setShowChat}
+                      setShowChatsWith={setShowChatsWith}
+                    />
+                  );
+                })
+              ) : (
+                <p>No more messages</p>
+              )}
+            </div>
           </InfiniteScroll>
         </section>
       </div>
@@ -193,7 +190,7 @@ export default function Message() {
       <div
         className={`${
           showChat ? "" : "hidden"
-        } basis-5/12 flex flex-col gap-4 border-2 rounded-lg p-8 sm:mx-auto bg-white shadow-sm sm:w-full md:m-4 `}
+        } basis-5/12 flex flex-col gap-4 border-2 border-neutral-300 rounded-lg sm:mx-auto bg-white shadow-sm sm:w-full md:m-4 `}
       >
         <ShowChatCard
           showChat={showChat}

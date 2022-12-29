@@ -15,7 +15,7 @@ export default function App({ Component, pageProps }) {
         isAuth: false,
         box_fields: false,
         column_fields: false,
-        mandatory_check: false,
+        // mandatory_check: false,
       };
 
       localStorage.setItem("userData", JSON.stringify(userData));

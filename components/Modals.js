@@ -1,8 +1,7 @@
-import { Dialog, Transition, Combobox } from "@headlessui/react";
+import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState, useRef } from "react";
-import { CountrySelect, InputComponent } from "../components/inputs";
+import { InputComponent, RadioComponent } from "../components/inputs";
 import { handleFileInput } from "../components/fileFunctions";
-import ShowPosts from "./showPosts";
 import Select from "react-select";
 import { checkPresence, CommentCard } from "../components/cards";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -14,7 +13,6 @@ import {
   IconCopy,
   IconSuccess,
   IconUser,
-  IconArrow,
   IconSend,
   IconImage,
 } from "../assets/images";
@@ -23,6 +21,13 @@ import {
   updateUserDataFromApi,
   updateUserDataObject,
 } from "../components/authFunctions";
+import {
+  reportPost,
+  reportUser,
+  rateUser,
+  blockUser,
+  deleteMsgsWithUser,
+} from "./postFunctions";
 
 export function alertUser(msg) {
   alert(msg);
@@ -261,7 +266,9 @@ export function MandatoryCheck({ isOpen, setIsOpen }) {
 
                     <input
                       ref={inputRef}
-                      onChange={(e) => handleFileInput(e, setImage)}
+                      onChange={(e) => {
+                        handleFileInput(e, setImage);
+                      }}
                       name="profile_pic_url"
                       accept="image/*"
                       type="file"
@@ -269,7 +276,9 @@ export function MandatoryCheck({ isOpen, setIsOpen }) {
                     />
 
                     <button
-                      onClick={() => inputRef.current.click()}
+                      onClick={() => {
+                        inputRef.current.click();
+                      }}
                       type="button"
                       className="hover:underline"
                     >
@@ -303,8 +312,16 @@ export function MandatoryCheck({ isOpen, setIsOpen }) {
                       name="country"
                       className="select"
                       options={countryList}
-                      placeholder="Select your country"
                       required
+                      defaultValue={
+                        checkPresence(currUserData?.country)
+                          ? {
+                              label: currUserData?.country,
+                              value: currUserData?.country,
+                            }
+                          : {}
+                      }
+                      placeholder={"Select Your country"}
                     />
                   </div>
                   <div className="flex flex-col gap-2">
@@ -323,7 +340,15 @@ export function MandatoryCheck({ isOpen, setIsOpen }) {
                       name="designation"
                       className="select"
                       options={designationList}
-                      placeholder="Select your designation"
+                      defaultValue={
+                        checkPresence(currUserData?.designation)
+                          ? {
+                              label: currUserData?.designation,
+                              value: currUserData?.designation,
+                            }
+                          : {}
+                      }
+                      placeholder={"Select your designation"}
                     />
                   </div>
 
@@ -792,6 +817,531 @@ export const MessageInfoModal = ({ isOpen, setIsOpen }) => {
                 <p className="text-neutral-900">
                   Old messages will be deleted after 30 days.
                 </p>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+};
+
+export const ReportPost = ({ isOpen, setIsOpen, postDetails }) => {
+  const [reportReasonText, setReportReasonText] = useState("");
+  const [reportReason, setReportReason] = useState("");
+  const [reportPostReason, setReportPostReason] = useState([]);
+
+  useEffect(() => {
+    const { option_report_post } = getUserDataObject();
+    setReportReasonText("");
+    setReportReason("");
+    option_report_post?.map((option) => {
+      reportPostReason.push(option?.title);
+    });
+
+    setReportPostReason([...new Set(reportPostReason)]);
+  }, []);
+
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-10" onClose={() => {}}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all flex flex-col gap-4">
+                <Dialog.Title
+                  as="h3"
+                  className="text-xl font-medium leading-6 text-gray-900"
+                >
+                  Report Post
+                </Dialog.Title>
+
+                <form id="reportPostform" className=" flex flex-col gap-4">
+                  <input
+                    type="text"
+                    placeholder={"+ Type to add your own reason"}
+                    name={"reportReason"}
+                    onChange={(e) => {
+                      setReportReasonText(e.target.value);
+                      setReportReason();
+                    }}
+                    className="border-2 rounded-md p-2  focus:outline-[#191919]"
+                  />
+
+                  <section
+                    className={`flex flex-col gap-2 ${
+                      reportReasonText === "" ? "" : "hidden"
+                    }`}
+                  >
+                    {reportPostReason?.map((option, index) => {
+                      return (
+                        <RadioComponent
+                          key={index}
+                          label={option}
+                          Name={"reportReason"}
+                          Value={option}
+                          stateMng={(e) => setReportReason(e.target.value)}
+                        />
+                      );
+                    })}
+                  </section>
+                  <div className="flex justify-around items-center gap-4">
+                    <button
+                      type="button"
+                      className="lg:text-lg sm:text-md sm:px-4 tracking-wide  basis-1/3 py-2 text-center border-2 border-[#191919] rounded-lg  hover:bg-neutral-200 transition px-12"
+                      onClick={() => {
+                        setIsOpen(false);
+                        setReportReasonText("");
+                        setReportReason("");
+                      }}
+                    >
+                      cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="lg:text-lg sm:text-md sm:px-4 tracking-wide bg-[#191919] px-12 py-2  lg:border-2 border-[#191919] rounded-lg text-center text-white basis-2/3 hover:bg-[#404040] "
+                      onClick={async () => {
+                        const { userInfo } = getUserDataObject();
+
+                        const description = checkPresence(reportReasonText)
+                          ? reportReasonText
+                          : reportReason;
+
+                        const result = await reportPost(
+                          postDetails?.PostId,
+                          description
+                        );
+
+                        setIsOpen(false);
+                        setReportReasonText("");
+                        setReportReason("");
+                      }}
+                    >
+                      continue
+                    </button>
+                  </div>
+                </form>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+};
+
+export const DeleteAllMessagesWithUser = ({
+  isOpen,
+  setIsOpen,
+  userDetails,
+}) => {
+  const router = useRouter();
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative " onClose={() => {}}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25 min-w-max" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel
+                className="w-full max-w-md transform  rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all min-w-fit flex flex-col"
+                style={{ gap: "1rem" }}
+              >
+                <div className="flex gap-4 justify-between items-center">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-xl font-medium text-center tracking-wide"
+                  >
+                    Delete all messages?
+                  </Dialog.Title>
+
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="font-semibold  text-lg py-1 px-4 hover:bg-neutral-300 rounded-md"
+                  >
+                    X
+                  </button>
+                </div>
+
+                <p className="text-neutral-900">
+                  Are you sure you want to delete all messages with{" "}
+                  {userDetails?.username} ?
+                </p>
+
+                <div className="flex justify-around items-center gap-4">
+                  <button
+                    className="lg:text-lg sm:text-md sm:px-4 tracking-wide  basis-1/3 py-2 text-center border-2 border-[#191919] rounded-lg  hover:bg-neutral-200 transition px-12"
+                    onClick={() => {
+                      setIsOpen(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="lg:text-lg sm:text-md sm:px-4 tracking-wide bg-[#191919] px-12 py-2  lg:border-2 border-[#191919] rounded-lg text-center text-white basis-2/3 hover:bg-[#404040] "
+                    onClick={async () => {
+                      await setIsOpen(false);
+                      const result = await deleteMsgsWithUser(
+                        userDetails?.createdById
+                      );
+
+                      if (result?.status) {
+                        router.reload();
+                      }
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+};
+
+// user functions
+export const BlockUser = ({ isOpen, setIsOpen, userDetails }) => {
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative " onClose={() => {}}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25 min-w-max" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel
+                className="w-full max-w-md transform  rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all min-w-fit flex flex-col"
+                style={{ gap: "1rem" }}
+              >
+                <div className="flex gap-4 justify-between items-center">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-xl font-medium text-center tracking-wide"
+                  >
+                    Block User
+                  </Dialog.Title>
+
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="font-semibold  text-lg py-1 px-4 hover:bg-neutral-300 rounded-md"
+                  >
+                    X
+                  </button>
+                </div>
+
+                <p className="text-neutral-900">
+                  Are you sure you want to block {userDetails?.username}
+                </p>
+
+                <div className="flex justify-around items-center gap-4">
+                  <button
+                    className="lg:text-lg sm:text-md sm:px-4 tracking-wide  basis-1/3 py-2 text-center border-2 border-[#191919] rounded-lg  hover:bg-neutral-200 transition px-12"
+                    onClick={() => {
+                      setIsOpen(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="lg:text-lg sm:text-md sm:px-4 tracking-wide bg-[#191919] px-12 py-2  lg:border-2 border-[#191919] rounded-lg text-center text-white basis-2/3 hover:bg-[#404040] "
+                    onClick={async () => {
+                      await setIsOpen(false);
+                      blockUser(userDetails?.createdById);
+                    }}
+                  >
+                    Block
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+};
+
+export const RateUser = ({
+  isOpen,
+  setIsOpen,
+  username,
+  profilePicUrl,
+  createdById,
+}) => {
+  const [rating, setRating] = useState(5);
+  const [hover, setHover] = useState(5);
+
+  function cancelRating() {
+    setRating(5);
+    setHover(5);
+  }
+
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-10" onClose={() => {}}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all flex flex-col gap-4">
+                <Dialog.Title
+                  as="h3"
+                  className="text-xl font-medium leading-6 text-gray-900"
+                >
+                  {username}
+                </Dialog.Title>
+
+                <Image
+                  src={profilePicUrl || IconUser}
+                  width={"60"}
+                  height={"60"}
+                  alt="user profile picture"
+                  className="mx-auto rounded-full"
+                />
+
+                <div className="flex mx-auto">
+                  {[...Array(10)].map((star, index) => {
+                    index += 1;
+                    return (
+                      <button
+                        type="button"
+                        key={index}
+                        className={`${
+                          index <= ((rating && hover) || hover)
+                            ? "text-yellow-300"
+                            : "text-neutral-500"
+                        } text-4xl `}
+                        onClick={() => setRating(index)}
+                        onMouseEnter={() => setHover(index)}
+                        onMouseLeave={() => setHover(rating)}
+                      >
+                        <span className="star">&#9733;</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex justify-around items-center gap-4">
+                  <button
+                    className="lg:text-lg sm:text-md sm:px-4 tracking-wide  basis-1/3 py-2 text-center border-2 border-[#191919] rounded-lg  hover:bg-neutral-200 transition px-12"
+                    onClick={() => {
+                      setIsOpen(false);
+
+                      cancelRating();
+                    }}
+                  >
+                    cancel
+                  </button>
+                  <button
+                    className="lg:text-lg sm:text-md sm:px-4 tracking-wide bg-[#191919] px-12 py-2  lg:border-2 border-[#191919] rounded-lg text-center text-white basis-2/3 hover:bg-[#404040] "
+                    onClick={() => {
+                      setIsOpen(false);
+                      rateUser(createdById, rating);
+                    }}
+                  >
+                    rate now
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+};
+
+export const ReportUser = ({ isOpen, setIsOpen, reportingUserId }) => {
+  const [reportReasonText, setReportReasonText] = useState("");
+  const [reportReason, setReportReason] = useState("");
+  const [reportUserReason, setReportUserReason] = useState([]);
+  useEffect(() => {
+    const { option_report_user } = getUserDataObject();
+
+    setReportReasonText("");
+    setReportReason("");
+    option_report_user?.map((option) => {
+      reportUserReason.push(option?.title);
+    });
+
+    setReportUserReason([...new Set(reportUserReason)]);
+  }, []);
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-10" onClose={() => {}}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all flex flex-col gap-4">
+                <Dialog.Title
+                  as="h3"
+                  className="text-xl font-medium leading-6 text-gray-900"
+                >
+                  Report User
+                </Dialog.Title>
+
+                <form id="reportPostform" className=" flex flex-col gap-4">
+                  <input
+                    type="text"
+                    placeholder={"+ Type to add your own reason"}
+                    name={"reportReason"}
+                    onChange={(e) => {
+                      setReportReasonText(e.target.value);
+                      setReportReason();
+                    }}
+                    className="border-2 rounded-md p-2  focus:outline-[#191919]"
+                  />
+
+                  <section
+                    className={`flex flex-col gap-2 ${
+                      reportReasonText === "" ? "" : "hidden"
+                    }`}
+                  >
+                    {reportUserReason?.map((option, index) => {
+                      return (
+                        <RadioComponent
+                          key={index}
+                          label={option}
+                          Name={"reportReason"}
+                          Value={option}
+                          stateMng={(e) => setReportReason(e.target.value)}
+                        />
+                      );
+                    })}
+                  </section>
+                  <div className="flex justify-around items-center gap-4">
+                    <button
+                      type="button"
+                      className="lg:text-lg sm:text-md sm:px-4 tracking-wide  basis-1/3 py-2 text-center border-2 border-[#191919] rounded-lg  hover:bg-neutral-200 transition px-12"
+                      onClick={() => {
+                        setIsOpen(false);
+                        setReportReasonText("");
+                        setReportReason("");
+                      }}
+                    >
+                      cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="lg:text-lg sm:text-md sm:px-4 tracking-wide bg-[#191919] px-12 py-2  lg:border-2 border-[#191919] rounded-lg text-center text-white basis-2/3 hover:bg-[#404040] "
+                      onClick={async () => {
+                        const { userInfo } = getUserDataObject();
+                        const description = checkPresence(reportReasonText)
+                          ? reportReasonText
+                          : reportReason;
+                        await reportUser(
+                          reportingUserId,
+                          userInfo?.id,
+                          description
+                        );
+                        setIsOpen(false);
+                        setReportReasonText("");
+                        setReportReason("");
+                      }}
+                    >
+                      continue
+                    </button>
+                  </div>
+                </form>
               </Dialog.Panel>
             </Transition.Child>
           </div>

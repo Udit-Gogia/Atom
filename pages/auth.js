@@ -164,7 +164,7 @@ export function Login() {
             }
           }}
         >
-          SignUp
+          Login
         </button>
       </form>
     </div>

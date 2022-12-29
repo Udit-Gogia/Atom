@@ -1,4 +1,4 @@
-import { IconAdd } from "../assets/images";
+import { IconAdd, IconLoader } from "../assets/images";
 import { useRef } from "react";
 import Image from "next/image";
 import { handleFileInput } from "./fileFunctions";
@@ -93,7 +93,7 @@ export const FileComponent = ({ file, setFile, accept }) => {
       <section className="flex flex-col">
         <button
           type="button"
-          onClick={initiateFileInput}
+          onClick={() => initiateFileInput()}
           className="border-2 p-8 rounded-md hover:border-primaryBlack transition-all items-center"
         >
           <Image

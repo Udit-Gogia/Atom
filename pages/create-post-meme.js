@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FileComponent } from "../components/inputs";
-import { IconAdd } from "../assets/images";
+import { IconAdd, IconLoader } from "../assets/images";
 import { createPost } from "../components/postFunctions";
 import { alertUser } from "../components/Modals";
 
