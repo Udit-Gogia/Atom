@@ -15,6 +15,7 @@ import {
   IconFreelance,
   IconAdd,
 } from "../assets/images";
+import { useRouter } from "next/router";
 
 export async function getServerSideProps() {
   const { result: workProfile } = await callApi(
@@ -60,6 +61,7 @@ const experienceOptions = [
 ];
 
 export default function CreatePostWorkseeker({ workProfile }) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     work_type: null,
     work_profile: "",
@@ -100,7 +102,7 @@ export default function CreatePostWorkseeker({ workProfile }) {
             const res = await createPost(formData, "create-post-workseeker");
 
             if (res?.status) {
-              return setFormData({
+              await setFormData({
                 work_type: null,
                 work_profile: "",
                 experience: "",
@@ -113,6 +115,7 @@ export default function CreatePostWorkseeker({ workProfile }) {
                 whatsapp: "",
                 description: "",
               });
+              return router.back();
             }
           }}
           method="post"
@@ -341,7 +344,7 @@ export default function CreatePostWorkseeker({ workProfile }) {
               form="workseeker"
               className="lg:text-lg sm:text-md tracking-wide bg-[#191919] md:px-8 py-2 basis-1/2  lg:border-2 border-[#191919] rounded-lg text-center text-white hover:bg-[#404040] "
             >
-              send message
+              submit
             </button>
           </div>
           {/* button ends */}

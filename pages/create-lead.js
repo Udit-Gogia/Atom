@@ -144,7 +144,7 @@ export default function CreateLead() {
               form="lead"
               className="lg:text-lg sm:text-md tracking-wide bg-[#191919] md:px-8 py-2 basis-1/2  lg:border-2 border-[#191919] rounded-lg text-center text-white hover:bg-[#404040] "
             >
-              send message
+              submit
             </button>
           </div>
           {/* button ends */}

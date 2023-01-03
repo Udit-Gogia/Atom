@@ -16,98 +16,6 @@ import {
 import { handleFileInput } from "./fileFunctions";
 import Select from "react-select";
 
-// export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
-// const [fieldsChanged, setFieldsChanged] = useState([]);
-// const [changed, setChanged] = useState({});
-
-//   const [editValue, setEditValue] = useState("");
-//   const [image, setImage] = useState(IconUser);
-//   const inputRef = useRef(null);
-
-// const sendUserData = async () => {
-//   const result = await getUserDataFromApi();
-
-//   userDetails.map((info, index) => {
-//     if (
-//       result[info.name] != document.getElementById(info.name).value &&
-//       fieldsChanged.includes(info.name) &&
-//       checkPresence(document.getElementById(info.name).value)
-//     ) {
-//       changed[info.name] = document.getElementById(info.name).value;
-//     }
-//   });
-
-//   if (image != IconUser) {
-//     changed["profile_pic_url"] = image;
-//   }
-//   const dataUpdated = await updateUserDataFromApi(changed);
-
-// if (dataUpdated?.status) {
-//   setEditMode(false);
-//   setUpdate(false);
-// }
-// };
-
-// update && sendUserData();
-
-//   return (
-//     <div className="flex flex-col gap-8 mx-2">
-// {/* profile pic changed */}
-// <div className="flex flex-col items-center gap-1">
-//   <Image
-//     src={image || IconUser}
-//     alt="icon-user"
-//     width="50"
-//     height="50"
-//     className="rounded-full"
-//   />
-
-//   <input
-//     style={{ display: "none" }}
-//     ref={inputRef}
-//     type="file"
-//     onChange={(e) => handleFileInput(e, setImage)}
-//     name="profilePicture"
-//     accept="image/*"
-//   />
-
-//   <button
-//     className={`text-md p-1  text-[#404040] border-b-2 hover:border-primaryBlack border-white  `}
-//     onClick={() => inputRef.current.click()}
-//   >
-//     change profile pic
-//   </button>
-// </div>
-
-//       {userDetails.map((userDetail, index) => {
-//         return (
-//           <div className="flex flex-col gap-2" key={index}>
-//             <label
-//               htmlFor={userDetail?.name}
-//               className="font-semibold text-lg tracking-wide"
-//             >
-//               {userDetail?.heading}
-//             </label>
-//             <input
-//               type={userDetail?.type}
-//               name={userDetail?.name}
-//               id={userDetail?.name}
-//               className="border-2 rounded-md p-2  focus:outline-[#191919]"
-//               required
-//               onChange={(e) => {
-//                 setEditValue(e.target.value);
-// if (!fieldsChanged.includes(e.target.name)) {
-//   fieldsChanged.push(e.target.name);
-// }
-//               }}
-//             ></input>
-//           </div>
-//         );
-//       })}
-//     </div>
-//   );
-// }
-
 export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
   const [currUserData, setCurrUserData] = useState({});
   const [tagText, setTagText] = useState("");
@@ -116,12 +24,13 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
   const [designationList, setDesignationList] = useState([]);
   const [fieldsChanged, setFieldsChanged] = useState([]);
   const [changed, setChanged] = useState({});
-
+  const [userDataInLocalStorage, setUserDataInLocalStorage] = useState([]);
   const [image, setImage] = useState();
   const inputRef = useRef();
   useEffect(() => {
     async function getUserInfo() {
-      const { userInfo, country, designation } = getUserDataObject();
+      const { country, designation } = getUserDataObject();
+      const result = await getUserDataFromApi();
 
       let newDesignation = designation.map((intName) => {
         return { value: intName.title, label: intName.title };
@@ -133,20 +42,20 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
 
       setCountryList(newCountry);
       setDesignationList(newDesignation);
+      setUserDataInLocalStorage(result);
     }
+
     getUserInfo();
   }, []);
 
   const sendUserData = async () => {
-    const { userInfo: result } = await getUserDataObject;
-
     if (image != IconUser) {
       currUserData["profile_pic_url"] = image;
     }
 
     const dataUpdated = await updateUserDataFromApi({
       ...currUserData,
-      tag,
+      tag: checkPresence(tag) ? tag : null,
     });
 
     if (dataUpdated?.status) {
@@ -196,7 +105,7 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
           <p className="font-semibold text-lg tracking-wide ">Designation</p>
           <Select
             required
-            placeholder={currUserData["designation"]}
+            placeholder={userDataInLocalStorage?.designation}
             id="designationselect"
             onChange={(e) => {
               if (!fieldsChanged.includes("designation")) {
@@ -227,7 +136,7 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
           }}
         />
 
-        <div>
+        <div className="my-4">
           <p className="font-semibold my-2 text-lg">Gender</p>
           <section className="flex gap-4">
             <RadioComponent
@@ -276,6 +185,7 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
           <section className="basis-1/2">
             <InputComponent
               type="number"
+              defaultValue={userDataInLocalStorage?.year_of_birth}
               stateMng={(e) => {
                 if (!fieldsChanged.includes(e.target.name)) {
                   fieldsChanged.push(e.target.name);
@@ -285,7 +195,11 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
                 });
               }}
               Name={"year_of_birth"}
-              placeholder={"YYYY"}
+              placeholder={
+                userDataInLocalStorage?.year_of_birth
+                  ? userDataInLocalStorage?.year_of_birth
+                  : "YYYY"
+              }
               label={"Year of Birth"}
             />
           </section>
@@ -296,7 +210,7 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
               </p>
               <Select
                 required
-                placeholder={currUserData["country"]}
+                placeholder={userDataInLocalStorage?.country}
                 id="countryselect"
                 onChange={(e) => {
                   if (!fieldsChanged.includes("country")) {
@@ -307,14 +221,14 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
                   });
                 }}
                 instanceId={"selectDesignation"}
-                name="designation"
+                name="country"
                 className="select"
                 options={countryList}
               />
             </div>
           </section>
         </div>
-        <section className="flex gap-4 justify-between">
+        <section className="flex gap-4 justify-between my-4">
           <section className="basis-1/2">
             <InputComponent
               type="text"
@@ -328,6 +242,7 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
               }}
               Name={"state"}
               label={"State"}
+              placeholder={userDataInLocalStorage?.state}
             />
           </section>
           <section className="basis-1/2">
@@ -343,6 +258,7 @@ export default function UpdateUserDetail({ update, setEditMode, setUpdate }) {
               }}
               Name={"City"}
               label={"City"}
+              placeholder={userDataInLocalStorage?.city}
             />
           </section>
         </section>

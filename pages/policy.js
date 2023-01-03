@@ -10,6 +10,7 @@ export default function Policy() {
       const { result } = await callApi("GET", "public/read-box/1?type=policy");
 
       checkPresence(result) && setPolicy(result);
+
       return result;
     }
 
@@ -17,7 +18,7 @@ export default function Policy() {
   }, []);
 
   return (
-    <div className="flex flex-col gap-4 bg-neutral-100">
+    <div className="flex flex-col-reverse gap-4 bg-neutral-100">
       {checkPresence(policy) &&
         policy?.map((policyCard, index) => {
           const {
@@ -27,6 +28,7 @@ export default function Policy() {
             link_url: link,
             tag: tags,
           } = checkPresence(policyCard) && policyCard;
+
           return (
             <CompanyCard
               key={index}

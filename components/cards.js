@@ -2,7 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import parseTag from "./parseTag";
-import { likePost, verifyLikedPosts } from "./postFunctions";
+import {
+  likeComment,
+  likePost,
+  verifyLikedPosts,
+  verifyLikedComment,
+} from "./postFunctions";
 import { useRouter } from "next/router";
 import { handleFileInput } from "./fileFunctions";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -40,6 +45,7 @@ export function checkPresence(ele) {
 }
 
 export function CompanyCard({ title, description, media, link, tags }) {
+  console.log("Inside company card , link is ", link);
   return (
     <div className="flex flex-col gap-6 min-w-fit md:mx-auto w-1/2 my-4 p-4 mx-4 border-2 rounded-md bg-white ">
       {checkPresence(title) && (
@@ -54,7 +60,7 @@ export function CompanyCard({ title, description, media, link, tags }) {
           alt={`image-${title}`}
           width="350"
           height="300"
-          className="rounded-md object-cover mx-auto"
+          className="rounded-md object-cover w-full"
           style={{ width: "auto", height: "auto" }}
           priority={true}
         />
@@ -166,28 +172,42 @@ export const getTimeDifference = (date, format = null) => {
   if (timeDiffInSeconds < 60) {
     return "right now";
   } else if (timeDiffInSeconds >= 60 && timeDiffInSeconds < 3600) {
-    return `${parseInt(timeDiffInSeconds / 60)}m`;
+    return `${parseInt(timeDiffInSeconds / 60)}m ago`;
   } else if (timeDiffInSeconds >= 3600 && timeDiffInSeconds < 86400) {
-    return `${parseInt(timeDiffInSeconds / 3600)}h`;
+    return `${parseInt(timeDiffInSeconds / 3600)}h ago`;
   } else if (timeDiffInSeconds >= 86400 && timeDiffInSeconds < 2592000) {
-    return `${parseInt(timeDiffInSeconds / 86400)}d`;
+    return `${parseInt(timeDiffInSeconds / 86400)}d ago`;
   } else if (timeDiffInSeconds >= 2592000 && timeDiffInSeconds < 31104000) {
-    return `${parseInt(timeDiffInSeconds / 2592000)}mo`;
+    return `${parseInt(timeDiffInSeconds / 2592000)}mo ago`;
   }
 
   return "show time diff";
 };
 
 export function CommentCard({
+  commentId,
   description,
   createdAt,
   createdByProfilePicUrl,
   mediaUrl,
   createdById,
   createdByUsername,
+  CommentlikeCount,
 }) {
+  const [likedStatus, setLikedStatus] = useState(verifyLikedComment(commentId));
+  const [likeCount, setLikeCount] = useState(CommentlikeCount);
+  async function likeThisComment() {
+    console.log("entered likeThisComment , ");
+
+    await likeComment(commentId);
+    setLikedStatus(true);
+    setLikeCount((count) => count + 1);
+
+    return;
+  }
+
   return (
-    <div className="flex w-full gap-2 h-fit">
+    <div className="flex w-full gap-2 h-fit my-4 border-2 rounded-md p-4">
       <section>
         <Image
           src={createdByProfilePicUrl || IconUser}
@@ -199,7 +219,7 @@ export function CommentCard({
         />
       </section>
 
-      <section className="flex flex-col gap-4 p-4 w-full bg-white rounded-md h-fit">
+      <section className="flex flex-col gap-4 px-4 w-full bg-white rounded-md h-fit">
         <section className="flex justify-between">
           <p className="font-semibold text-lg">{createdByUsername}</p>
           <p className="ml-auto">{getTimeDifference(createdAt)}</p>
@@ -220,6 +240,22 @@ export function CommentCard({
             alt="comment-media"
           />
         )}
+
+        <section className="flex mr-4 ">
+          <button
+            className="hover:bg-neutral-200 p-2 gap-2 rounded-md flex items-center "
+            onClick={likeThisComment}
+            disabled={verifyLikedComment(commentId)}
+          >
+            <Image
+              src={likedStatus ? IconLiked : IconLike}
+              width={"22"}
+              height={"22"}
+              alt="icon-like"
+            />
+            <p className="font-semibold text-lg">{likeCount}</p>
+          </button>
+        </section>
       </section>
     </div>
   );
@@ -692,9 +728,9 @@ export function PostCard({
   return (
     <>
       {checkPresence(postId) && (
-        <div className="flex flex-col w-full p-6 m-4 mt-2 bg-white border-2 rounded-xl border-primaryBlack gap-6">
+        <div className="flex flex-col w-full p-6 m-4 mt-2 bg-white border-2 rounded-xl border-neutral-300 gap-6 shadow-md mx-auto">
           <section className="flex gap-2 justify-between items-center">
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               {checkPresence(createdByProfilePicUrl) ? (
                 <Image
                   src={createdByProfilePicUrl}
@@ -702,14 +738,14 @@ export function PostCard({
                   className="rounded-full "
                   width="50"
                   height="50"
-                  style={{ width: "4em", height: "4em" }}
+                  style={{ width: "3em", height: "3em" }}
                 />
               ) : (
                 <Image
                   src={IconUser}
                   alt={createdByUsername}
                   className="rounded-full"
-                  style={{ width: "4em", height: "4em" }}
+                  style={{ width: "3em", height: "3em" }}
                   width="50"
                   height="50"
                 />
@@ -717,7 +753,7 @@ export function PostCard({
 
               <div className="grid grid-cols-1">
                 {checkPresence(createdByUsername) && (
-                  <p className="text-xl">{createdByUsername}</p>
+                  <p className="text-lg">{createdByUsername}</p>
                 )}
 
                 {checkPresence(toString(createdByRating)) && (
@@ -727,9 +763,9 @@ export function PostCard({
                       alt="icon-rating"
                       width={"20"}
                       height={"20"}
-                      style={{ width: "20px", height: "20px" }}
+                      style={{ width: "15px", height: "15px" }}
                     />
-                    <span className="mx-2 text-lg">{createdByRating}</span>
+                    <span className="mx-2 text-md">{createdByRating}</span>
                   </p>
                 )}
               </div>
@@ -921,7 +957,11 @@ export function PostCard({
                 <div
                   id="scrollableDiv"
                   className="flex flex-col gap-4 bg-neutral"
-                  style={{ height: "50vh", overflow: "auto" }}
+                  style={{
+                    height: "50vh",
+                    overflow: "auto",
+                    minHeight: "fit-content",
+                  }}
                 >
                   <InfiniteScroll
                     dataLength={displayComments?.length}
@@ -931,10 +971,9 @@ export function PostCard({
                       setPageNumber((pageNumber) => pageNumber + 1);
                     }}
                     hasMore={moreComments}
-                    loader={
-                      <p className="font-semibold roboto-reg">Loading...</p>
+                    endMessage={
+                      Array.isArray(displayComments) && <p>end of comments</p>
                     }
-                    endMessage={<p>end of comments</p>}
                     scrollableTarget="scrollableDiv"
                     scrollThreshold={0.8}
                   >
@@ -952,6 +991,7 @@ export function PostCard({
                             mediaUrl={comment?.["media_url"]}
                             createdById={comment?.["created_by_id"]}
                             createdAt={comment?.["created_at"]}
+                            CommentlikeCount={comment?.["like_count"]}
                           />
                         );
                       })

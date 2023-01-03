@@ -20,6 +20,7 @@ export default function StarRating() {
   function cancelRating() {
     setRating(5);
     setHover(5);
+    router.back();
   }
 
   async function submitRating() {
@@ -37,6 +38,7 @@ export default function StarRating() {
     setRating(5);
     setHover(5);
     validateRes(response, result);
+    router.back();
   }
 
   return (

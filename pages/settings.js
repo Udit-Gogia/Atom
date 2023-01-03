@@ -8,10 +8,13 @@ import {
   IconSuggestAFeature,
   IconRating,
   IconLogout,
+  IconArrow,
   IconDelete,
 } from "../assets/images";
+import { useRouter } from "next/router";
 
 export default function Settings() {
+  const router = useRouter();
   const pageList = [
     {
       icon: IconContactUs,
@@ -51,25 +54,37 @@ export default function Settings() {
   ];
 
   return (
-    <div className="flex bg-neutral-100 w-full min-h-screen h-max ">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 w-full p-8 mx-8">
+    <div className="w-full bg-neutral-100 min-h-screen h-fit">
+      <div className="md:w-1/2 flex flex-col gap-4 border-2 rounded-lg p-8 mx-auto bg-white my-4 ">
+        <section className="flex gap-4 items-center m-2">
+          <button onClick={() => router.back()} className="m-2">
+            <Image
+              src={IconArrow}
+              width={"40"}
+              height={"40"}
+              alt="icon-arrow"
+              style={{ width: "15px", height: "15px" }}
+            />
+          </button>
+          <p className="text-xl tracking-wide font-semibold pb-2 w-full ">
+            Settings
+          </p>
+        </section>
         {pageList?.map((page, index) => {
           return (
             <Link
               key={index}
               href={page.redirect}
-              className="flex flex-col bg-white p-4 gap-4 rounded-md hover:border-primaryBlack items-center justify-center hover:shadow-xl border-t-8 "
+              className="flex  bg-white p-2 gap-4 hover:bg-neutral-100 items-center  hover:shadow-md border-b-2 border-neutral-300"
             >
               <Image
                 src={page?.icon}
                 alt="page-icon"
-                width={"35"}
-                height={"35"}
-                style={{ width: "auto" }}
+                width={"20"}
+                height={"20"}
+                style={{ width: "auto", margin: "0 1rem" }}
               />
-              <p className="text-xl tracking-wide font-semibold">
-                {page.label}
-              </p>
+              <p className="text-xl tracking-wide font-medium">{page.label}</p>
             </Link>
           );
         })}

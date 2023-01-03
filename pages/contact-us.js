@@ -4,8 +4,10 @@ import callApi from "../components/callApi";
 import { validateRes, getUserDataFromApi } from "../components/authFunctions";
 import { useState, useEffect } from "react";
 import { IconAdd } from "../assets/images";
-
+import { useRouter } from "next/router";
 export default function ContactUs() {
+  const router = useRouter();
+
   const [userAuthenticated, setUserAuthenticated] = useState(false);
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(IconAdd);
@@ -24,7 +26,7 @@ export default function ContactUs() {
 
     const { response, result } = await callApi(
       "POST",
-      "public/create-suggestion",
+      "public/create-support",
       null,
       JSON.stringify(data),
       "contact us message sent successfully"
@@ -35,6 +37,8 @@ export default function ContactUs() {
       setDescription("");
       setImage(IconAdd);
     }
+
+    return router.back();
   };
 
   return (
@@ -68,7 +72,7 @@ export default function ContactUs() {
             className="lg:text-lg sm:text-md sm:px-4 tracking-wide bg-[#191919] px-12 py-2 basis-1/2  lg:border-2 border-[#191919] rounded-lg text-center text-white hover:bg-[#404040] "
             onClick={submitRequest}
           >
-            send message
+            submit
           </button>
         </div>
       </div>

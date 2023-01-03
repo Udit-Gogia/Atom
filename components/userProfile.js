@@ -38,6 +38,10 @@ export default function UserProfile() {
       heading: "Country",
       content: userInfo?.["country"],
     },
+    {
+      heading: "City",
+      content: userInfo?.["city"],
+    },
   ];
 
   return (

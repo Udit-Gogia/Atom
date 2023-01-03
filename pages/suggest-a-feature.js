@@ -1,10 +1,12 @@
 import { FileComponent, TextAreaComponent } from "../components/inputs";
 import callApi from "../components/callApi";
-import { validateRes } from "../components/authFunctions";
+import { validateRes, getUserDataFromApi } from "../components/authFunctions";
 import { useState, useEffect } from "react";
 import { IconAdd } from "../assets/images";
+import { useRouter } from "next/router";
 
 export default function SuggestAFeature() {
+  const router = useRouter();
   const [userAuthenticated, setUserAuthenticated] = useState(false);
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(IconAdd);
@@ -23,7 +25,7 @@ export default function SuggestAFeature() {
 
     const { response, result } = await callApi(
       "POST",
-      "public/create-support",
+      "public/create-suggestion",
       null,
       JSON.stringify(data),
       "feature suggestion message sent successfully"
@@ -34,6 +36,7 @@ export default function SuggestAFeature() {
       setDescription("");
       setImage(IconAdd);
     }
+    return router.back();
   };
   return (
     <div className="w-full bg-neutral-100 h-screen">
@@ -67,7 +70,7 @@ export default function SuggestAFeature() {
             className="lg:text-lg sm:text-md sm:px-4 tracking-wide bg-[#191919] px-12 py-2  lg:border-2 border-[#191919] rounded-lg text-center text-white basis-1/2 hover:bg-[#404040] "
             onClick={submitRequest}
           >
-            send message
+            submit
           </button>
         </div>
       </div>

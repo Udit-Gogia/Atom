@@ -1,5 +1,9 @@
 import callApi from "./callApi";
-import { getUserDataObject, validateRes } from "./authFunctions";
+import {
+  getUserDataObject,
+  setUserDataObject,
+  validateRes,
+} from "./authFunctions";
 import { checkPresence } from "./cards";
 
 export const createPost = async (dataObject, url) => {
@@ -63,6 +67,38 @@ export async function likePost(post_id, token = null) {
   return validateRes(response, result);
 }
 
+export const verifyLikedComment = (comment_id) => {
+  const currLikedComments = JSON.parse(
+    localStorage.getItem("userData")
+  ).commentLiked;
+
+  if (
+    checkPresence(currLikedComments) &&
+    currLikedComments.includes(comment_id)
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+export async function likeComment(comment_id) {
+  const userDataObject = getUserDataObject();
+
+  if (!userDataObject?.postLiked.includes(comment_id)) {
+    userDataObject.postLiked.push(comment_id);
+  }
+  setUserDataObject({ userDataObject });
+
+  const { response, result } = await callApi(
+    "POST",
+    "private/all/create-like-comment",
+    userDataObject?.token,
+    JSON.stringify({ comment_id })
+  );
+
+  return validateRes(response, result);
+}
 export async function bookmarkPost(post_id) {
   const { token } = await JSON.parse(localStorage.getItem("userData"));
   const { result } = await callApi(

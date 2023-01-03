@@ -9,6 +9,7 @@ import {
   TagsComponent,
 } from "../components/inputs";
 import { IconAdd } from "../assets/images";
+import { useRouter } from "next/router";
 
 export async function getServerSideProps() {
   const { result: serviceType } = await callApi(
@@ -24,6 +25,7 @@ export async function getServerSideProps() {
 }
 
 export default function CreatePostService({ serviceType }) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     service_type: "",
     media_url: "",
@@ -61,7 +63,7 @@ export default function CreatePostService({ serviceType }) {
             const res = await createPost(formData, "create-post-service");
 
             if (res?.status) {
-              return setFormData({
+              await setFormData({
                 service_type: "",
                 media_url: "",
                 tag: [],
@@ -71,6 +73,7 @@ export default function CreatePostService({ serviceType }) {
                 whatsapp: "",
                 description: "",
               });
+              return router.back();
             }
           }}
           method="post"
@@ -216,7 +219,7 @@ export default function CreatePostService({ serviceType }) {
               form="workseeker"
               className="lg:text-lg sm:text-md tracking-wide bg-[#191919] md:px-8 py-2 basis-1/2  lg:border-2 border-[#191919] rounded-lg text-center text-white hover:bg-[#404040] "
             >
-              send message
+              submit
             </button>
           </div>
           {/* button ends */}

@@ -6,8 +6,10 @@ import {
   TagsComponent,
   TextAreaComponent,
 } from "../components/inputs";
+import { useRouter } from "next/router";
 
 export default function CreatePost() {
+  const router = useRouter();
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(IconAdd);
   const [tagText, setTagText] = useState("");
@@ -61,10 +63,11 @@ export default function CreatePost() {
                 setImage(IconAdd);
                 setTagText("");
                 setTags([]);
+                return router.back();
               }
             }}
           >
-            send message
+            submit
           </button>
         </div>
       </div>

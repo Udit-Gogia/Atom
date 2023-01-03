@@ -11,6 +11,7 @@ export default function App({ Component, pageProps }) {
       const userData = {
         userId: undefined,
         postLiked: [],
+        commentLiked: [],
         token: undefined,
         isAuth: false,
         box_fields: false,

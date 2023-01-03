@@ -3,8 +3,10 @@ import { FileComponent } from "../components/inputs";
 import { IconAdd, IconLoader } from "../assets/images";
 import { createPost } from "../components/postFunctions";
 import { alertUser } from "../components/Modals";
+import { useRouter } from "next/router";
 
 export default function CreatePostMeme() {
+  const router = useRouter();
   const [image, setImage] = useState(IconAdd);
   return (
     <div className="w-full bg-neutral-100 min-h-screen h-max">
@@ -36,13 +38,14 @@ export default function CreatePostMeme() {
 
                 if (res?.status) {
                   setImage(IconAdd);
+                  return router.back();
                 }
               } else {
                 alertUser("Please add an image to continue!");
               }
             }}
           >
-            send message
+            submit
           </button>
         </div>
       </div>

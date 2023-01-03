@@ -100,9 +100,7 @@ export default function DeleteMyAccount() {
                   <Dialog.Title
                     as="h3"
                     className="text-xl font-medium leading-6 text-gray-900"
-                  >
-                    Report Post
-                  </Dialog.Title>
+                  ></Dialog.Title>
 
                   <form id="reportPostform" className=" flex flex-col gap-4">
                     <input

@@ -3,7 +3,10 @@ import { Tab } from "@headlessui/react";
 import Image from "next/image";
 import { IconSetting, IconUser, IconStar } from "../assets/images";
 import { useEffect, useState } from "react";
-import { getUserDataObject } from "../components/authFunctions";
+import {
+  getUserDataFromApi,
+  getUserDataObject,
+} from "../components/authFunctions";
 import { checkPresence, getTimeDifference } from "../components/cards";
 import ShowPosts from "../components/showPosts";
 import Sidebar from "../components/sidebar";
@@ -16,10 +19,14 @@ export default function Profile() {
   const [basicInfo, setBasicInfo] = useState();
 
   useEffect(() => {
-    const { userInfo } = getUserDataObject();
-    const { username, profile_pic_url, rating } = userInfo;
+    async function getUserData() {
+      const result = await getUserDataFromApi();
+
+      const { username, profile_pic_url, rating } = result;
+      setUserData({ username, profile_pic_url, rating });
+    }
+    getUserData();
     getBasicInfo();
-    setUserData({ username, profile_pic_url, rating });
   }, []);
 
   async function getBasicInfo() {
@@ -88,28 +95,28 @@ export default function Profile() {
         </div>
 
         {/* three buttons */}
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-4 items-center w-full">
           <Link
             href="/my-profile"
-            className="border-2 rounded-md px-4 py-2 border-primaryBlack active:underline hover:underline"
+            className="border-2 rounded-md px-4 py-2 border-primaryBlack active:underline hover:underline basis-1/3 text-center"
           >
             My Profile Info
           </Link>
           <Link
             href="/my-login-info"
-            className="border-2 rounded-md px-4 py-2 border-primaryBlack active:underline hover:underline"
+            className="border-2 rounded-md px-4 py-2 border-primaryBlack active:underline hover:underline basis-1/3 text-center"
           >
             My Login Info
           </Link>
           <Link
             href="/settings"
-            className="border-2 rounded-md px-2 py-1 border-primaryBlack"
+            className="border-2 rounded-md px-2 py-1 border-primaryBlack basis-1/3 "
           >
             <Image
               src={IconSetting}
               width={"30"}
               height={"30"}
-              style={{ width: "30px", height: "30px" }}
+              style={{ width: "30px", height: "30px", margin: "0 auto" }}
               alt="icon-setting"
             />
           </Link>

@@ -14,6 +14,7 @@ export const InputComponent = ({
   stateMng,
   type,
   placeholder = null,
+  defaultValue = null,
 }) => {
   return (
     <div className="flex flex-col gap-2">
@@ -27,6 +28,7 @@ export const InputComponent = ({
         value={value}
         onChange={stateMng}
         required
+        defaultValue={checkPresence(defaultValue) ? defaultValue : null}
         className="border-2 rounded-md p-2  focus:outline-[#191919]"
       ></input>
     </div>

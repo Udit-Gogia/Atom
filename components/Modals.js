@@ -69,7 +69,7 @@ export function SignupModal({ username, password, isOpen }) {
               <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all min-w-fit">
                 <Dialog.Title
                   as="h3"
-                  className="text-xl font-medium text-center tracking-wide flex items-center"
+                  className="text-2xl font-medium text-center tracking-wide flex items-center mb-4"
                 >
                   <Image
                     src={IconSuccess}
@@ -83,20 +83,20 @@ export function SignupModal({ username, password, isOpen }) {
                 </Dialog.Title>
 
                 <div className="flex flex-col sm:py-4 lg:py-2  mb-12s">
-                  <div className="flex justify-around my-4 items-center w-full">
-                    <div className="lg:text-lg sm:text-md sm:px-4  basis-1/2 py-2 text-center border-2 border-[#191919] rounded-l-lg ">
+                  <div className="flex justify-around mt-4 items-center w-full">
+                    <div className="lg:text-lg sm:text-md sm:px-4  basis-1/2 py-2 text-center border-2  rounded-tl-lg ">
                       your username is{" "}
                     </div>
-                    <div className="text-lg tracking-wide px-12 lg:border-l-0 py-2  border-2 border-[#191919] rounded-r-lg text-center text-[#191919] basis-1/2">
+                    <div className="text-lg tracking-wide px-12 lg:border-l-0 py-2  border-2  rounded-tr-lg text-center text-[#191919] basis-1/2 font-semibold">
                       {username}{" "}
                     </div>
                   </div>
 
-                  <div className="flex justify-around my-4 items-center w-full">
-                    <div className="lg:text-lg sm:text-md sm:px-4  basis-1/2 py-2 text-center border-2 border-[#191919] rounded-l-lg">
+                  <div className="flex justify-around mb-4 items-center w-full">
+                    <div className="lg:text-lg sm:text-md sm:px-4 basis-1/2 py-2 text-center border-2 rounded-bl-lg border-t-0">
                       your password is{" "}
                     </div>
-                    <div className="text-lg  tracking-wide px-12 lg:border-l-0 py-2  border-2 border-[#191919] rounded-r-lg text-center text-[#191919] basis-1/2">
+                    <div className="text-lg  tracking-wide px-12 lg:border-l-0 py-2  border-2 rounded-br-lg text-center text-[#191919] basis-1/2 border-t-0 font-semibold">
                       {password}{" "}
                     </div>
                   </div>
@@ -119,7 +119,7 @@ export function SignupModal({ username, password, isOpen }) {
                 <div className="mt-4">
                   <button
                     type="button"
-                    className="btnStyle2 w-full p-2"
+                    className="lg:text-lg sm:text-md tracking-wide bg-[#191919] md:px-8 py-2 basis-1/2  lg:border-2 border-[#191919] rounded-lg text-center text-white hover:bg-[#404040] w-full"
                     onClose={() => {}}
                     onClick={() => {
                       router.push("/");
@@ -313,14 +313,6 @@ export function MandatoryCheck({ isOpen, setIsOpen }) {
                       className="select"
                       options={countryList}
                       required
-                      defaultValue={
-                        checkPresence(currUserData?.country)
-                          ? {
-                              label: currUserData?.country,
-                              value: currUserData?.country,
-                            }
-                          : {}
-                      }
                       placeholder={"Select Your country"}
                     />
                   </div>
@@ -340,14 +332,6 @@ export function MandatoryCheck({ isOpen, setIsOpen }) {
                       name="designation"
                       className="select"
                       options={designationList}
-                      defaultValue={
-                        checkPresence(currUserData?.designation)
-                          ? {
-                              label: currUserData?.designation,
-                              value: currUserData?.designation,
-                            }
-                          : {}
-                      }
                       placeholder={"Select your designation"}
                     />
                   </div>

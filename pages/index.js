@@ -46,9 +46,9 @@ export default function Home() {
         <div className="flex bg-neutral-100 w-full min-h-screen ">
           <Sidebar />
           <MandatoryCheck isOpen={isOpen} setIsOpen={setIsOpen} />
-          <div className="w-full flex flex-col ">
+          <div className="w-full flex flex-col">
             <Tab.Group defaultIndex={1}>
-              <Tab.List className="md:mx-16 sm:mx-0">
+              <Tab.List className="sm:mx-0 md:mx-auto">
                 <Tab
                   className="p-2 m-4 lg:w-32 text-xl focus:outline-none"
                   id={0}

@@ -60,7 +60,7 @@ export default function ShowPosts({ feedType, type }) {
   };
 
   return (
-    <div className="md:w-[45vw] sm:w-full ">
+    <div className="md:w-[50vw] sm:w-full mx-auto">
       <InfiniteScroll
         dataLength={posts?.length}
         next={() => {

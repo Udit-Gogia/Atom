@@ -15,6 +15,7 @@ import {
   IconFreelance,
   IconAdd,
 } from "../assets/images";
+import { useRouter } from "next/router";
 
 export async function getServerSideProps() {
   const { result: workProfile } = await callApi(
@@ -60,6 +61,7 @@ const experienceOptions = [
 ];
 
 export default function CreatePostWorkgiver({ workProfile }) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     work_type: "",
     work_profile: "",
@@ -77,6 +79,7 @@ export default function CreatePostWorkgiver({ workProfile }) {
   const [tagText, setTagText] = useState("");
 
   function updateFormData(event) {
+    console.log("entered updateformdata");
     const Name = event.target.name;
     const value = event.target.value;
 
@@ -100,7 +103,7 @@ export default function CreatePostWorkgiver({ workProfile }) {
             const res = await createPost(formData, "create-post-workgiver");
 
             if (res?.status) {
-              return setFormData({
+              await setFormData({
                 work_type: "",
                 work_profile: "",
                 experience: "",
@@ -113,6 +116,8 @@ export default function CreatePostWorkgiver({ workProfile }) {
                 whatsapp: "",
                 description: "",
               });
+
+              return router.back();
             }
           }}
           method="post"
@@ -309,12 +314,27 @@ export default function CreatePostWorkgiver({ workProfile }) {
           </div>
 
           {/* description starts */}
-          <TextAreaComponent
-            name="description"
-            onChange={updateFormData}
-            value={formData.description}
-            label="write something about the job"
-          />
+
+          <div className="flex flex-col">
+            <label
+              htmlFor={"description"}
+              className="font-semibold my-2 text-lg"
+            >
+              write something about the job
+            </label>
+
+            <textarea
+              name={"description"}
+              rows={7}
+              value={formData.description}
+              className="p-2 w-full rounded-lg border-2 resize-none focus:outline-primaryBlack"
+              onChange={(e) =>
+                setFormData((prevValue) => {
+                  return { ...prevValue, description: e.target.value };
+                })
+              }
+            />
+          </div>
           {/* description ends */}
 
           {/* button starts */}
@@ -327,7 +347,7 @@ export default function CreatePostWorkgiver({ workProfile }) {
               form="workseeker"
               className="lg:text-lg sm:text-md tracking-wide bg-[#191919] md:px-8 py-2 basis-1/2  lg:border-2 border-[#191919] rounded-lg text-center text-white hover:bg-[#404040] "
             >
-              send message
+              submit
             </button>
           </div>
           {/* button ends */}

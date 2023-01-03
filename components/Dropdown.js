@@ -58,6 +58,13 @@ export default function DropDown({
     }
   }
 
+  function checkAll() {
+    if (checkBookmarkPost() && checkChats() && checkSelfPost()) {
+      console.log("supports all types");
+      return true;
+    } else return false;
+  }
+
   return (
     <div className="relative inline-block text-left">
       <Menu>
@@ -78,7 +85,8 @@ export default function DropDown({
           leaveTo="transform scale-95 opacity-0"
         >
           <Menu.Items className="absolute right-0 w-56 mt-2 p-1 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-lg outline-none">
-            {!checkBookmarkPost() && !checkSelfPost() && !checkChats() && (
+            {/* bookmark post */}
+            {!checkBookmarkPost() && !checkSelfPost() && !checkChats() ? (
               <Menu.Item disabled={false}>
                 {({ active }) => (
                   <button
@@ -91,7 +99,9 @@ export default function DropDown({
                   </button>
                 )}
               </Menu.Item>
-            )}
+            ) : null}
+
+            {/* rate user */}
             {!checkSelfPost() && (
               <Menu.Item disabled={false}>
                 {({ active }) => (
@@ -107,6 +117,7 @@ export default function DropDown({
               </Menu.Item>
             )}
 
+            {/* report post */}
             {!checkSelfPost() && !checkChats() && (
               <Menu.Item disabled={false}>
                 {({ active }) => (
@@ -121,7 +132,7 @@ export default function DropDown({
                 )}
               </Menu.Item>
             )}
-
+            {/* delete bookmark */}
             {checkBookmarkPost() && (
               <Menu.Item disabled={false}>
                 {({ active }) => (
@@ -141,6 +152,7 @@ export default function DropDown({
                 )}
               </Menu.Item>
             )}
+            {/* delete post */}
             {checkSelfPost() && (
               <Menu.Item disabled={false}>
                 {({ active }) => (
@@ -155,7 +167,7 @@ export default function DropDown({
                 )}
               </Menu.Item>
             )}
-
+            {/* report user */}
             {checkChats() && (
               <Menu.Item disabled={false}>
                 {({ active }) => (
@@ -170,6 +182,7 @@ export default function DropDown({
                 )}
               </Menu.Item>
             )}
+            {/* block user */}
             {checkChats() && (
               <Menu.Item disabled={false}>
                 {({ active }) => (
@@ -184,6 +197,8 @@ export default function DropDown({
                 )}
               </Menu.Item>
             )}
+
+            {/* delete all messages */}
             {checkChats() && (
               <Menu.Item disabled={false}>
                 {({ active }) => (

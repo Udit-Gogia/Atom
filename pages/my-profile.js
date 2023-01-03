@@ -1,10 +1,12 @@
 import Image from "next/image";
 import { useState } from "react";
-import { IconEdit } from "../assets/images";
+import { IconArrow, IconEdit } from "../assets/images";
 import UserProfile from "../components/userProfile";
 import UpdateUserDetail from "../components/updateUserProfile";
+import { useRouter } from "next/router";
 
 export default function MyProfile() {
+  const router = useRouter();
   const [editMode, setEditMode] = useState(false);
   const [update, setUpdate] = useState(false);
 
@@ -13,6 +15,15 @@ export default function MyProfile() {
       <div className="md:w-1/2 flex flex-col gap-6 border-2 rounded-lg p-8 mx-auto bg-white my-4 shadow-sm">
         {/* header starts*/}
         <div className="flex m-2 justify-between border-b-2 items-center">
+          <button onClick={() => router.back()} className="mx-2">
+            <Image
+              src={IconArrow}
+              width={"25"}
+              height={"25"}
+              alt="icon-arrow"
+              style={{ width: "15px", height: "15px" }}
+            />
+          </button>
           <p className="text-xl tracking-wide font-semibold pb-2 w-full ">
             My Profile Info
           </p>
