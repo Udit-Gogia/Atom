@@ -1,4 +1,4 @@
-import { IconAdd, IconLoader } from "../assets/images";
+import { IconAdd, IconLoader, IconPdf } from "../assets/images";
 import { useRef } from "react";
 import Image from "next/image";
 import { handleFileInput } from "./fileFunctions";
@@ -76,7 +76,7 @@ export const TextAreaComponent = ({
         rows={rows}
         placeholder={placeholder}
         value={value}
-        className="p-2 w-full rounded-lg border-2 resize-none focus:outline-primaryBlack"
+        className="p-2 w-full rounded-lg border-2 resize-none focus:outline-primaryBlack border-neutral-300"
         onChange={stateMng}
       />
     </div>
@@ -98,14 +98,37 @@ export const FileComponent = ({ file, setFile, accept }) => {
           onClick={() => initiateFileInput()}
           className="border-2 p-8 rounded-md hover:border-primaryBlack transition-all items-center"
         >
-          <Image
-            src={file}
-            alt="add-file-icon"
-            width={file === IconAdd ? "30" : "250"}
-            height={file === IconAdd ? "30" : "200"}
-            className="mx-auto"
-            style={{ width: "auto" }}
-          />
+          {checkPresence(file) &&
+            (typeof file === "string" ? (
+              file.substring(file.length - 3) != "pdf" ? (
+                <Image
+                  src={file}
+                  alt="add-file-icon"
+                  width={file === IconAdd ? "30" : "150"}
+                  height={file === IconAdd ? "30" : "100"}
+                  className="mx-auto"
+                  style={{ width: "auto" }}
+                />
+              ) : (
+                <Image
+                  src={IconPdf}
+                  style={{ width: "auto" }}
+                  className="mx-auto"
+                  alt="icon-pdf"
+                  width={"35"}
+                  height={"35"}
+                />
+              )
+            ) : (
+              <Image
+                src={file}
+                alt="add-file-icon"
+                width={file === IconAdd ? "30" : "150"}
+                height={file === IconAdd ? "30" : "100"}
+                className="mx-auto"
+                style={{ width: "auto" }}
+              />
+            ))}
         </button>
         <button
           type="button"

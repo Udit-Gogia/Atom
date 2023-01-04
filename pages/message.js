@@ -92,6 +92,8 @@ export default function Message() {
           ? setChatList(chatsWith)
           : setHasMore(false);
       });
+
+    return;
   }
   const getMoreMessages = async () => {
     ++pageNumber;
@@ -136,6 +138,7 @@ export default function Message() {
               setIsOpen={setIsDeleteMsg}
               setAllMessages={setAllMessages}
               setUnreadMessageCount={setUnreadMsgCount}
+              setCurrChatList={setChatList}
             />
             <button
               className="p-2 hover:bg-neutral-200 rounded-md"

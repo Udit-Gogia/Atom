@@ -15,7 +15,7 @@ export default function CreatePost() {
   const [tagText, setTagText] = useState("");
   const [tag, setTags] = useState([]);
   return (
-    <div className="w-full bg-neutral-100 h-screen">
+    <div className="w-full bg-neutral-100 h-max min-h-screen">
       <div className="md:w-1/2 flex flex-col gap-6 border-2 rounded-lg p-8 mx-auto bg-white my-4">
         <p className="text-xl tracking-wide font-semibold pb-2  w-full border-b-2">
           share anything
@@ -41,6 +41,7 @@ export default function CreatePost() {
           <button
             type="button"
             className="lg:text-lg sm:text-md tracking-wide basis-1/2  md:px-8 py-2 text-center border-2 border-[#191919] rounded-lg hover:bg-neutral-200 transition px-12 h-fit"
+            onClick={() => router.back()}
           >
             cancel
           </button>
@@ -63,7 +64,7 @@ export default function CreatePost() {
                 setImage(IconAdd);
                 setTagText("");
                 setTags([]);
-                return router.back();
+                return router.push("/");
               }
             }}
           >

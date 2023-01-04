@@ -1,66 +1,20 @@
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/high-res.css";
-import { createPost } from "../components/postFunctions";
-import callApi from "../components/callApi";
+import {
+  createPost,
+  workProfileFunction,
+  jobRoles,
+  experienceOptions,
+} from "../components/postFunctions";
+
 import Image from "next/image";
-import { useState } from "react";
-import {
-  FileComponent,
-  TextAreaComponent,
-  TagsComponent,
-} from "../components/inputs";
-import {
-  IconConsultant,
-  IconFullTime,
-  IconFreelance,
-  IconAdd,
-} from "../assets/images";
+import { useEffect, useState } from "react";
+import { FileComponent, TagsComponent } from "../components/inputs";
+import { IconAdd } from "../assets/images";
 import { useRouter } from "next/router";
+import { IconArrow } from "../assets/images";
 
-export async function getServerSideProps() {
-  const { result: workProfile } = await callApi(
-    "GET",
-    "public/read-box/1?type=work_profile"
-  );
-
-  return {
-    props: {
-      workProfile,
-    },
-  };
-}
-
-const jobRoles = [
-  {
-    jobName: "full-time",
-    jobImage: IconFullTime,
-  },
-  {
-    jobName: "consultant",
-    jobImage: IconConsultant,
-  },
-  {
-    jobName: "internship",
-    jobImage: IconFreelance,
-  },
-  {
-    jobName: "freelance",
-    jobImage: IconFreelance,
-  },
-];
-
-const experienceOptions = [
-  "0-1 year of experience",
-  "1-3 years of experience",
-  "3-5 years of experience",
-  "5-10 years of experience",
-  "10-15 years of experience",
-  "15-20 years of experience",
-  "20-30 years of experience",
-  ">30 years of experience",
-];
-
-export default function CreatePostWorkgiver({ workProfile }) {
+export default function CreatePostWorkgiver() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     work_type: "",
@@ -76,7 +30,17 @@ export default function CreatePostWorkgiver({ workProfile }) {
     description: "",
   });
 
+  const [workProfile, setWorkProfile] = useState([]);
+  useEffect(() => {
+    async function getWorkProfiles() {
+      const result = await workProfileFunction();
+      return setWorkProfile(result);
+    }
+    getWorkProfiles();
+  }, []);
+
   const [tagText, setTagText] = useState("");
+  const [file, setFile] = useState(IconAdd);
 
   function updateFormData(event) {
     console.log("entered updateformdata");
@@ -91,14 +55,29 @@ export default function CreatePostWorkgiver({ workProfile }) {
   return (
     <div className="w-full bg-neutral-100 min-h-max">
       <div className="md:w-1/2 flex flex-col gap-6 border-2 rounded-lg p-8 mx-auto bg-white my-4">
-        <p className="text-xl tracking-wide font-semibold pb-2  w-full border-b-2">
-          looking to hire?
-        </p>
+        <section className="flex gap-4 items-center m-2 text-xl tracking-wide font-semibold pb-2  w-full border-b-2">
+          <button
+            onClick={() => router.back()}
+            className="m-2 hover:bg-neutral-200 p-2 rounded-md"
+          >
+            <Image
+              src={IconArrow}
+              width={"40"}
+              height={"40"}
+              alt="icon-arrow"
+              style={{ width: "15px", height: "15px" }}
+            />
+          </button>
+          <p>looking for a hire?</p>
+        </section>
 
         <form
           id="workseeker"
           onSubmit={async (e) => {
             e.preventDefault();
+            if (file != IconAdd) {
+              formData.media_url = file;
+            }
 
             const res = await createPost(formData, "create-post-workgiver");
 
@@ -117,7 +96,7 @@ export default function CreatePostWorkgiver({ workProfile }) {
                 description: "",
               });
 
-              return router.back();
+              return router.push("/");
             }
           }}
           method="post"
@@ -237,13 +216,7 @@ export default function CreatePostWorkgiver({ workProfile }) {
           <div className="flex flex-col gap-2">
             <h1 className="text-lg mb-1">upload job description (optional)</h1>
             <section className="md:w-1/3 ">
-              <FileComponent
-                accept={".pdf"}
-                file={IconAdd}
-                setFile={(awsUrl) =>
-                  setFormData({ ...formData, media_url: `${awsUrl}` })
-                }
-              />
+              <FileComponent accept={".pdf"} file={file} setFile={setFile} />
             </section>
           </div>
           {/* resume section ends */}
@@ -339,7 +312,10 @@ export default function CreatePostWorkgiver({ workProfile }) {
 
           {/* button starts */}
           <div className="flex justify-around items-center gap-6">
-            <button className="lg:text-lg sm:text-md tracking-wide basis-1/2  md:px-8 py-2 text-center border-2 border-[#191919] rounded-lg hover:bg-neutral-200 transition px-12 h-fit">
+            <button
+              className="lg:text-lg sm:text-md tracking-wide basis-1/2  md:px-8 py-2 text-center border-2 border-[#191919] rounded-lg hover:bg-neutral-200 transition px-12 h-fit"
+              onClick={() => router.back()}
+            >
               cancel
             </button>
             <button

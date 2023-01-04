@@ -1,70 +1,78 @@
-import { IconFreelance, IconTags } from "../assets/images";
+import { IconFreelance, IconTags, IconArrow } from "../assets/images";
 import Link from "next/link";
 import Image from "next/image";
+import Sidebar from "../components/sidebar";
+import { useRouter } from "next/router";
+
+const hubTopRow = [
+  {
+    label: " Add your Requirements",
+    icon: IconFreelance,
+    href: "/create-post-workseeker",
+  },
+  {
+    label: "List your service",
+    icon: IconFreelance,
+    href: "/create-post-service",
+  },
+  {
+    label: "Add a free Job Post",
+    icon: IconFreelance,
+    href: "/create-post-workgiver",
+  },
+  {
+    label: "Do you need an app/website?",
+    icon: IconFreelance,
+    href: "/create-lead",
+  },
+];
+
 export default function Hub() {
+  const router = useRouter();
   return (
-    <div className="w-full bg-neutral-100 min-h-screen h-max">
+    <div className="w-full bg-neutral-100 min-h-screen h-max flex">
+      <Sidebar selectedOption={1} />
       <div className="md:w-3/5 flex flex-col gap-6 border-2 rounded-lg p-8 mx-auto bg-white my-4">
-        <p className="font-semibold tracking-wide text-2xl">
-          Add your Requirements
-        </p>
+        <section className="flex gap-4 items-center m-2">
+          <button
+            onClick={() => router.back()}
+            className="m-2 hover:bg-neutral-200 p-2 rounded-md"
+          >
+            <Image
+              src={IconArrow}
+              width={"40"}
+              height={"40"}
+              alt="icon-arrow"
+              style={{ width: "15px", height: "15px" }}
+            />
+          </button>
+          <p className="font-semibold tracking-wide text-2xl">
+            Add your Requirements
+          </p>
+        </section>
+
         <div className="grid md:grid-cols-4 grid-cols-2 gap-4">
-          <Link
-            href={"/create-post-workseeker"}
-            className="flex flex-col gap-2 items-center border-2 hover:border-primaryBlack p-4 rounded-md justify-center text-center basis-1/4 transition-all duration-100 "
-          >
-            <Image
-              src={IconFreelance}
-              style={{ width: "30px", height: "30px" }}
-              width={"30"}
-              height={"30"}
-              alt="icon-browse"
-            />
+          {hubTopRow.map((hubOption, index) => {
+            return (
+              <Link
+                key={index}
+                href={hubOption.href}
+                shallow
+                // onClick={() => router.push(hubOption.href)}
+                className="flex flex-col gap-2 items-center border-2 hover:border-primaryBlack p-4 rounded-md justify-center text-center basis-1/4 transition-all duration-100 "
+              >
+                <Image
+                  src={hubOption.icon}
+                  style={{ width: "30px", height: "30px" }}
+                  width={"30"}
+                  height={"30"}
+                  alt="icon-browse"
+                />
 
-            <p>Looking for a Job?</p>
-          </Link>
-          <Link
-            href={"/create-post-service"}
-            className="flex flex-col gap-2 items-center border-2 hover:border-primaryBlack p-4 rounded-md justify-center text-center basis-1/4 transition-all duration-100"
-          >
-            <Image
-              src={IconFreelance}
-              style={{ width: "30px", height: "30px" }}
-              width={"30"}
-              height={"30"}
-              alt="icon-browse"
-            />
-
-            <p>List your service</p>
-          </Link>
-          <Link
-            href={"/create-post-workgiver"}
-            className="flex flex-col gap-2 items-center border-2 hover:border-primaryBlack p-4 rounded-md justify-center text-center basis-1/4 transition-all duration-100"
-          >
-            <Image
-              src={IconFreelance}
-              style={{ width: "30px", height: "30px" }}
-              width={"30"}
-              height={"30"}
-              alt="icon-browse"
-            />
-
-            <p>Add a free Job Post</p>
-          </Link>
-          <Link
-            href={"/create-lead"}
-            className="flex flex-col gap-2 items-center border-2 hover:border-primaryBlack p-4 rounded-md justify-center text-center basis-1/4 transition-all duration-100"
-          >
-            <Image
-              src={IconFreelance}
-              style={{ width: "30px", height: "30px" }}
-              width={"30"}
-              height={"30"}
-              alt="icon-browse"
-            />
-
-            <p>Do you need an app/website?</p>
-          </Link>
+                <p> {hubOption.label} </p>
+              </Link>
+            );
+          })}
         </div>
 
         <p className="font-semibold tracking-wide text-2xl">Browse</p>

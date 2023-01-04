@@ -44,15 +44,17 @@ export default function Signout() {
           </p>
         </div>
       </div>
+
       <div className="flex justify-around m-4 items-center  mt-12">
         <button
-          className="lg:text-lg sm:text-md sm:px-4 tracking-wide bg-[#191919] px-12 py-2  lg:border-2 border-[#191919] rounded-lg text-center text-white basis-1/2 mx-2 hover:bg-[#404040] "
+          className="lg:text-lg sm:text-md sm:px-4 tracking-wide text-center basis-1/3 py-2 px-12  border-2 border-[#191919] rounded-lg mx-2 hover:bg-neutral-200 transition "
           onClick={() => router.back()}
         >
           go back
         </button>
         <button
-          className="lg:text-lg sm:text-md sm:px-4 tracking-wide text-center basis-1/2 py-2 px-12  border-2 border-[#191919] rounded-lg mx-2 hover:bg-neutral-200 transition "
+          type="button"
+          className="lg:text-lg sm:text-md sm:px-4 tracking-wide bg-[#191919] px-12 py-2  lg:border-2 border-[#191919] rounded-lg text-center text-white basis-2/3 mx-2 hover:bg-[#404040] "
           onClick={handleSignOut}
         >
           continue

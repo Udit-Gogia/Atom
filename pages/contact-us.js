@@ -65,7 +65,8 @@ export default function ContactUs() {
         </div>
 
         <div className="flex justify-around items-center gap-6">
-          <button className="lg:text-lg sm:text-md sm:px-4 tracking-wide  basis-1/2 py-2 text-center border-2 border-[#191919] rounded-lg hover:bg-neutral-200 transition px-12">
+          <button className="lg:text-lg sm:text-md sm:px-4 tracking-wide  basis-1/2 py-2 text-center border-2 border-[#191919] rounded-lg hover:bg-neutral-200 transition px-12" 
+          onClick={() => router.back()}>
             cancel
           </button>
           <button

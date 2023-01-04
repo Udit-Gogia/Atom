@@ -3,10 +3,13 @@ import "react-phone-input-2/lib/high-res.css";
 import { createLead } from "../components/postFunctions";
 import { useEffect, useState } from "react";
 import { FileComponent, TextAreaComponent } from "../components/inputs";
-import { IconAdd } from "../assets/images";
+import { IconAdd, IconArrow } from "../assets/images";
+import Image from "next/image";
 import { getUserDataObject } from "../components/authFunctions";
+import { useRouter } from "next/router";
 
 export default function CreateLead() {
+  const router = useRouter();
   const [created_by_id, setCreatedById] = useState(null);
   useEffect(() => {
     setCreatedById(getUserDataObject("userId"));
@@ -25,9 +28,21 @@ export default function CreateLead() {
   return (
     <div className="w-full bg-neutral-100 min-h-max">
       <div className="md:w-1/2 flex flex-col gap-6 border-2 rounded-lg p-8 mx-auto bg-white my-4">
-        <p className="text-xl tracking-wide font-semibold pb-2  w-full border-b-2">
-          create lead
-        </p>
+        <section className="flex gap-4 items-center m-2 text-xl tracking-wide font-semibold pb-2  w-full border-b-2">
+          <button
+            onClick={() => router.back()}
+            className="m-2 hover:bg-neutral-200 p-2 rounded-md"
+          >
+            <Image
+              src={IconArrow}
+              width={"40"}
+              height={"40"}
+              alt="icon-arrow"
+              style={{ width: "15px", height: "15px" }}
+            />
+          </button>
+          <p> create lead</p>
+        </section>
 
         <form
           id="lead"
@@ -136,7 +151,11 @@ export default function CreateLead() {
 
           {/* button starts */}
           <div className="flex justify-around items-center gap-6">
-            <button className="lg:text-lg sm:text-md tracking-wide basis-1/2  md:px-8 py-2 text-center border-2 border-[#191919] rounded-lg hover:bg-neutral-200 transition px-12 h-fit">
+            <button
+              type="button"
+              className="lg:text-lg sm:text-md tracking-wide basis-1/2  md:px-8 py-2 text-center border-2 border-[#191919] rounded-lg hover:bg-neutral-200 transition px-12 h-fit"
+              onClick={() => router.back()}
+            >
               cancel
             </button>
             <button

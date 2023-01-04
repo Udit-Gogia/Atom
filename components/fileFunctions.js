@@ -21,6 +21,7 @@ export const compressFile = async (image) => {
 };
 
 export const handleFileInput = async (e, setFile) => {
+  console.log("entered handleFileInput ", e);
   setFile(IconLoader);
   const file = e.target.files && e.target.files[0];
   const { token } = JSON.parse(localStorage.getItem("userData"));

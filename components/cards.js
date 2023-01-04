@@ -11,7 +11,7 @@ import {
 import { useRouter } from "next/router";
 import { handleFileInput } from "./fileFunctions";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { CreateModal } from "./Modals";
+import { CreateModal, CreateChatThread } from "./Modals";
 import DropDown from "./Dropdown";
 import callApi from "./callApi";
 import {
@@ -26,6 +26,7 @@ import {
   IconSend,
   IconDownload,
   IconArrow,
+  IconAdd,
 } from "../assets/images";
 import { getUserDataObject, validateRes } from "./authFunctions";
 
@@ -60,8 +61,8 @@ export function CompanyCard({ title, description, media, link, tags }) {
           alt={`image-${title}`}
           width="350"
           height="300"
-          className="rounded-md object-cover w-full"
-          style={{ width: "auto", height: "auto" }}
+          className="rounded-md object-cover w-full mx-auto"
+          style={{ width: "350px", height: "auto" }}
           priority={true}
         />
       )}
@@ -329,6 +330,7 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
   let [newComments, setNewComments] = useState([]);
   let [pageNumber, setPageNumber] = useState(1);
   let [moreComments, setMoreComments] = useState(true);
+
   const [textMessage, setTextMessage] = useState("");
   const [file, setFile] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -344,7 +346,23 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
     const { userInfo } = getUserDataObject();
     const { id } = userInfo;
     setUserId(id);
+
+    // updateUnreadMessageCount();
   }, [showChatsWith.username, showChatsWith.id]);
+
+  const updateUnreadMessageCount = async () => {
+    const { token } = getUserDataObject();
+    console.log("inside updateUnreadMessageCount");
+
+    if (checkPresence(showChatsWith?.id)) {
+      await callApi(
+        "UPDATE",
+        `private/self/update-message-thread-mark-read/${showChatsWith?.id}`,
+        token
+      );
+    }
+    return;
+  };
 
   const renderChats = async () => {
     if (showChatsWith?.id) {
@@ -560,16 +578,38 @@ export function ReceivedMsg({ msgDetails }) {
           </p>
         )}
       </section>
-      {checkPresence(msgDetails?.media_url) && (
-        <Image
-          className={` rounded-md mx-auto`}
-          src={msgDetails?.media_url}
-          style={{ width: "auto" }}
-          alt={"chat media"}
-          width="200"
-          height="250"
-        />
-      )}
+      {checkPresence(msgDetails?.media_url) &&
+        (msgDetails?.media_url.substring(msgDetails?.media_url.length - 3) !=
+        "pdf" ? (
+          <Link href={msgDetails?.media_url} className="m-2">
+            <Image
+              className={` rounded-md mx-auto`}
+              src={msgDetails?.media_url}
+              style={{ width: "auto" }}
+              alt={"chat media"}
+              width="100"
+              height="150"
+            />
+          </Link>
+        ) : (
+          <div className="w-full flex justify-start gap-4 items-center m-2">
+            <Image
+              src={IconPdf}
+              style={{ width: "auto" }}
+              alt="icon-pdf"
+              width={"35"}
+              height={"35"}
+            />
+            <a
+              href={msgDetails?.media_url}
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-sm "
+            >
+              View file
+            </a>
+          </div>
+        ))}
     </div>
   );
 }
@@ -584,17 +624,38 @@ export function SentMsg({ msgDetails }) {
           </p>
         )}
       </section>
-
-      {checkPresence(msgDetails?.media_url) && (
-        <Image
-          className={` rounded-md mx-auto`}
-          src={msgDetails?.media_url}
-          style={{ width: "auto" }}
-          alt={"chat media"}
-          width="100"
-          height="150"
-        />
-      )}
+      {checkPresence(msgDetails?.media_url) &&
+        (msgDetails?.media_url.substring(msgDetails?.media_url.length - 3) !=
+        "pdf" ? (
+          <Link href={msgDetails?.media_url} className="m-2">
+            <Image
+              className={` rounded-md mx-auto`}
+              src={msgDetails?.media_url}
+              style={{ width: "auto" }}
+              alt={"chat media"}
+              width="100"
+              height="150"
+            />
+          </Link>
+        ) : (
+          <div className="w-full flex justify-start gap-4 items-center m-2">
+            <Image
+              src={IconPdf}
+              style={{ width: "auto" }}
+              alt="icon-pdf"
+              width={"35"}
+              height={"35"}
+            />
+            <a
+              href={msgDetails?.media_url}
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-sm "
+            >
+              View file
+            </a>
+          </div>
+        ))}
     </div>
   );
 }
@@ -626,6 +687,8 @@ export function PostCard({
   const [likedStatus, setLikedStatus] = useState(verifyLikedPosts(postId));
   const [likeCount, setLikeCount] = useState(postLikeCount);
   const [showComments, setShowComments] = useState(false);
+  const [isChatThreadOpen, setIsChatThreadOpen] = useState(false);
+  const [view, setView] = useState("hidden");
 
   const [displayComments, setDisplayComments] = useState([]);
   let [newComments, setNewComments] = useState([]);
@@ -728,7 +791,7 @@ export function PostCard({
   return (
     <>
       {checkPresence(postId) && (
-        <div className="flex flex-col w-full p-6 m-4 mt-2 bg-white border-2 rounded-xl border-neutral-300 gap-6 shadow-md mx-auto">
+        <div className="flex flex-col w-full p-6 m-2 mt-2 bg-white border-2 rounded-xl border-neutral-300 gap-6 shadow-md mx-auto">
           <section className="flex gap-2 justify-between items-center">
             <div className="flex gap-2 items-center">
               {checkPresence(createdByProfilePicUrl) ? (
@@ -738,14 +801,14 @@ export function PostCard({
                   className="rounded-full "
                   width="50"
                   height="50"
-                  style={{ width: "3em", height: "3em" }}
+                  style={{ width: "2.5em", height: "2.5em" }}
                 />
               ) : (
                 <Image
                   src={IconUser}
                   alt={createdByUsername}
                   className="rounded-full"
-                  style={{ width: "3em", height: "3em" }}
+                  style={{ width: "2.5em", height: "2.5em" }}
                   width="50"
                   height="50"
                 />
@@ -753,7 +816,7 @@ export function PostCard({
 
               <div className="grid grid-cols-1">
                 {checkPresence(createdByUsername) && (
-                  <p className="text-lg">{createdByUsername}</p>
+                  <p className="text-md">{createdByUsername}</p>
                 )}
 
                 {checkPresence(toString(createdByRating)) && (
@@ -860,16 +923,33 @@ export function PostCard({
             </p>
           )}
 
+          {checkPresence(createdByEmail) ||
+          checkPresence(createdByMobile) ||
+          checkPresence(createdByWhatsapp) ? (
+            <div className="flex my-2">
+              <button
+                className="px-4 border-2 rounded-md"
+                onClick={() =>
+                  view === "hidden" ? setView("") : setView("hidden")
+                }
+              >
+                Contact
+              </button>
+            </div>
+          ) : (
+            <></>
+          )}
+
           {(checkPresence(createdByEmail) ||
             checkPresence(createdByMobile) ||
             checkPresence(createdByWhatsapp)) && (
-            <section className="flex flex-col items-start gap-2">
-              {checkPresence(createdByEmail) && <p>Email {createdByEmail} </p>}
+            <section className={`flex flex-col items-start gap-2 ${view}`}>
+              {checkPresence(createdByEmail) && <p>Email: {createdByEmail} </p>}
               {checkPresence(createdByMobile) && (
-                <p>Mobile {createdByMobile} </p>
+                <p>Mobile: {createdByMobile} </p>
               )}
               {checkPresence(createdByWhatsapp) && (
-                <p>Whatsapp {createdByWhatsapp} </p>
+                <p>Whatsapp: {createdByWhatsapp} </p>
               )}
             </section>
           )}
@@ -891,7 +971,10 @@ export function PostCard({
                   <p className="font-semibold text-lg">{likeCount}</p>
                 </button>
               </section>
-              <button className="hover:bg-neutral-200 px-2 rounded-md mr-4">
+              <button
+                className="hover:bg-neutral-200 px-2 rounded-md mr-4"
+                onClick={() => setIsChatThreadOpen(true)}
+              >
                 <Image
                   src={IconChat}
                   width={"22"}
@@ -1071,6 +1154,11 @@ export function PostCard({
           </div>
         </div>
       )}
+      <CreateChatThread
+        isOpen={isChatThreadOpen}
+        setIsOpen={setIsChatThreadOpen}
+        userDetails={{ id: createdById, username: createdByUsername }}
+      />
     </>
   );
 }

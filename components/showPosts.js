@@ -75,7 +75,7 @@ export default function ShowPosts({ feedType, type }) {
           ? Array.isArray(posts) &&
             posts?.map((post, index) => {
               return (
-                <div key={index} className="flex p-4 pt-0 flex-1 text-center ">
+                <div key={index} className="flex p-4 pt-0 flex-1 text-center  ">
                   <PostCard
                     postId={post?.["id"]}
                     createdById={post?.["created_by_id"]}

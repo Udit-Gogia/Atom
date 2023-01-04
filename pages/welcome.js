@@ -8,7 +8,7 @@ export default function Welcome() {
         <section className="w-full flex flex-col justify-center">
           <Link
             href="/auth"
-            className="mx-auto w-full p-2 bg-primaryBlack text-white border-primaryBlack text-center rounded-md transition-a;; duration-150 hover:bg-neutral-100 hover:text-primaryBlack border-2"
+            className="mx-auto w-full p-2 bg-primaryBlack text-white border-primaryBlack text-center rounded-md transition-a;; duration-150 hover:bg-[#404040]   border-2"
           >
             Proceed
           </Link>

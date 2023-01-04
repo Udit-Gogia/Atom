@@ -1,30 +1,17 @@
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/high-res.css";
-import { createPost, updateFormData } from "../components/postFunctions";
-import callApi from "../components/callApi";
-import { useState } from "react";
+import { createPost, serviceTypeFunction } from "../components/postFunctions";
+import { useState, useEffect } from "react";
 import {
   FileComponent,
   TextAreaComponent,
   TagsComponent,
 } from "../components/inputs";
-import { IconAdd } from "../assets/images";
+import { IconAdd, IconArrow } from "../assets/images";
+import Image from "next/image";
 import { useRouter } from "next/router";
 
-export async function getServerSideProps() {
-  const { result: serviceType } = await callApi(
-    "GET",
-    "public/read-box/1?type=service_type"
-  );
-
-  return {
-    props: {
-      serviceType,
-    },
-  };
-}
-
-export default function CreatePostService({ serviceType }) {
+export default function CreatePostService() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     service_type: "",
@@ -36,6 +23,16 @@ export default function CreatePostService({ serviceType }) {
     whatsapp: "",
     description: "",
   });
+
+  const [file, setFile] = useState(IconAdd);
+  const [serviceType, setServiceType] = useState([]);
+  useEffect(() => {
+    async function getServiceTypes() {
+      const result = await serviceTypeFunction();
+      return setServiceType(result);
+    }
+    getServiceTypes();
+  }, []);
 
   function updateFormData(event) {
     const Name = event.target.name;
@@ -51,14 +48,30 @@ export default function CreatePostService({ serviceType }) {
   return (
     <div className="w-full bg-neutral-100 min-h-max">
       <div className="md:w-1/2 flex flex-col gap-6 border-2 rounded-lg p-8 mx-auto bg-white my-4">
-        <p className="text-xl tracking-wide font-semibold pb-2  w-full border-b-2">
-          list your service
-        </p>
+        <section className="flex gap-4 items-center m-2 text-xl tracking-wide font-semibold pb-2  w-full border-b-2">
+          <button
+            onClick={() => router.back()}
+            className="m-2 hover:bg-neutral-200 p-2 rounded-md"
+          >
+            <Image
+              src={IconArrow}
+              width={"40"}
+              height={"40"}
+              alt="icon-arrow"
+              style={{ width: "15px", height: "15px" }}
+            />
+          </button>
+          <p>list your service</p>
+        </section>
 
         <form
           id="workseeker"
           onSubmit={async (e) => {
             e.preventDefault();
+
+            if (file != IconAdd) {
+              formData.media_url = file;
+            }
 
             const res = await createPost(formData, "create-post-service");
 
@@ -73,7 +86,7 @@ export default function CreatePostService({ serviceType }) {
                 whatsapp: "",
                 description: "",
               });
-              return router.back();
+              return router.push("/");
             }
           }}
           method="post"
@@ -119,12 +132,10 @@ export default function CreatePostService({ serviceType }) {
             <h1 className="text-lg mb-1">attach a brochure (optional)</h1>
             <section className="md:w-1/3 ">
               <FileComponent
-                name="media_url"
                 accept={".pdf"}
-                file={IconAdd}
-                setFile={(awsUrl) =>
-                  setFormData({ ...formData, media_url: `${awsUrl}` })
-                }
+                file={file}
+                setFile={setFile}
+                name="media_url"
               />
             </section>
           </div>
@@ -211,7 +222,10 @@ export default function CreatePostService({ serviceType }) {
 
           {/* button starts */}
           <div className="flex justify-around items-center gap-6">
-            <button className="lg:text-lg sm:text-md tracking-wide basis-1/2  md:px-8 py-2 text-center border-2 border-[#191919] rounded-lg hover:bg-neutral-200 transition px-12 h-fit">
+            <button
+              className="lg:text-lg sm:text-md tracking-wide basis-1/2  md:px-8 py-2 text-center border-2 border-[#191919] rounded-lg hover:bg-neutral-200 transition px-12 h-fit"
+              onClick={() => router.back()}
+            >
               cancel
             </button>
             <button

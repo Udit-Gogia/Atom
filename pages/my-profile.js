@@ -15,7 +15,10 @@ export default function MyProfile() {
       <div className="md:w-1/2 flex flex-col gap-6 border-2 rounded-lg p-8 mx-auto bg-white my-4 shadow-sm">
         {/* header starts*/}
         <div className="flex m-2 justify-between border-b-2 items-center">
-          <button onClick={() => router.back()} className="mx-2">
+          <button
+            onClick={() => router.back()}
+            className="m-2 hover:bg-neutral-200 p-2 rounded-md"
+          >
             <Image
               src={IconArrow}
               width={"25"}

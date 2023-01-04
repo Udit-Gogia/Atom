@@ -1,6 +1,11 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState, useRef } from "react";
-import { InputComponent, RadioComponent } from "../components/inputs";
+import {
+  FileComponent,
+  InputComponent,
+  RadioComponent,
+  TextAreaComponent,
+} from "../components/inputs";
 import { handleFileInput } from "../components/fileFunctions";
 import Select from "react-select";
 import { checkPresence, CommentCard } from "../components/cards";
@@ -15,11 +20,13 @@ import {
   IconUser,
   IconSend,
   IconImage,
+  IconAdd,
 } from "../assets/images";
 import {
   getUserDataObject,
   updateUserDataFromApi,
   updateUserDataObject,
+  validateRes,
 } from "../components/authFunctions";
 import {
   reportPost,
@@ -663,6 +670,7 @@ export const DeleteMsgModal = ({
   setIsOpen,
   setAllMessages,
   setUnreadMessageCount,
+  setCurrChatList,
 }) => {
   async function deleteAllMessages() {
     const { token } = getUserDataObject();
@@ -676,6 +684,7 @@ export const DeleteMsgModal = ({
 
     if (result?.status) {
       setAllMessages([]);
+      setCurrChatList([]);
       return setUnreadMessageCount(0);
     }
   }
@@ -1012,6 +1021,121 @@ export const DeleteAllMessagesWithUser = ({
                     }}
                   >
                     Delete
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+};
+
+export const CreateChatThread = ({ isOpen, setIsOpen, userDetails }) => {
+  const [newUserChat, setNewUserChat] = useState("");
+  const [media, setMedia] = useState(IconAdd);
+  const submitFunction = async () => {
+    const { token } = getUserDataObject();
+    const data = { received_by_id: userDetails.id };
+    if (checkPresence(media) && media != IconAdd) {
+      data["media_url"] = media;
+    }
+    if (checkPresence(newUserChat)) {
+      data["description"] = newUserChat;
+    }
+
+    const { response, result } = await callApi(
+      "POST",
+      "private/all/create-message",
+      token,
+      JSON.stringify(data),
+      "message sent successfully"
+    );
+
+    validateRes(response, result);
+
+    result?.status;
+    if (result?.status) {
+      setMedia(IconAdd);
+      await setNewUserChat("");
+    }
+  };
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative " onClose={() => {}}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25 min-w-max" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel
+                className="w-full max-w-md transform  rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all min-w-fit flex flex-col"
+                style={{ gap: "1.5rem" }}
+              >
+                <div className="flex gap-4 justify-between items-center">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-xl font-medium text-center tracking-wide"
+                  >
+                    Message {userDetails?.username}
+                  </Dialog.Title>
+
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="font-semibold  text-lg py-1 px-4 hover:bg-neutral-300 rounded-md"
+                  >
+                    X
+                  </button>
+                </div>
+
+                <TextAreaComponent
+                  stateMng={(e) => setNewUserChat(e.target.value)}
+                  value={newUserChat}
+                  Name="chatdesc"
+                  rows={4}
+                />
+                <section className="w-1/3">
+                  <FileComponent file={media} setFile={setMedia} />
+                </section>
+
+                <div className="flex justify-around items-center gap-4">
+                  <button
+                    className="lg:text-lg sm:text-md sm:px-4 tracking-wide  basis-1/3 py-2 text-center border-2 border-[#191919] rounded-lg  hover:bg-neutral-200 transition px-12"
+                    onClick={() => {
+                      setNewUserChat("");
+                      setMedia(IconAdd);
+                      setIsOpen(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="lg:text-lg sm:text-md sm:px-4 tracking-wide bg-[#191919] px-12 py-2  lg:border-2 border-[#191919] rounded-lg text-center text-white basis-2/3 hover:bg-[#404040] "
+                    onClick={async () => {
+                      await submitFunction();
+                      setIsOpen(false);
+                    }}
+                  >
+                    Send Message
                   </button>
                 </div>
               </Dialog.Panel>

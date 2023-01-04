@@ -57,7 +57,10 @@ export default function Settings() {
     <div className="w-full bg-neutral-100 min-h-screen h-fit">
       <div className="md:w-1/2 flex flex-col gap-4 border-2 rounded-lg p-8 mx-auto bg-white my-4 ">
         <section className="flex gap-4 items-center m-2">
-          <button onClick={() => router.back()} className="m-2">
+          <button
+            onClick={() => router.back()}
+            className="m-2 hover:bg-neutral-200 p-2 rounded-md"
+          >
             <Image
               src={IconArrow}
               width={"40"}

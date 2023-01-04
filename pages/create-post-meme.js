@@ -20,7 +20,10 @@ export default function CreatePostMeme() {
         </div>
 
         <div className="flex justify-around items-center gap-6">
-          <button className="lg:text-lg sm:text-md tracking-wide basis-1/2  md:px-8 py-2 text-center border-2 border-[#191919] rounded-lg hover:bg-neutral-200 transition px-12 h-fit">
+          <button
+            className="lg:text-lg sm:text-md tracking-wide basis-1/2  md:px-8 py-2 text-center border-2 border-[#191919] rounded-lg hover:bg-neutral-200 transition px-12 h-fit"
+            onClick={() => router.back()}
+          >
             cancel
           </button>
           <button
@@ -38,7 +41,7 @@ export default function CreatePostMeme() {
 
                 if (res?.status) {
                   setImage(IconAdd);
-                  return router.back();
+                  return router.push("/");
                 }
               } else {
                 alertUser("Please add an image to continue!");

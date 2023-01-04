@@ -184,7 +184,7 @@ export default function Auth() {
   }, []);
   return (
     <div className="">
-      <div className="w-1/2 flex justify-center mx-auto">
+      <div className="w-1/2 flex justify-center mx-auto mt-12">
         <button
           className={`p-2 text-2xl w-full transition duration-150 ${
             showLogin

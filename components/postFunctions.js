@@ -5,6 +5,7 @@ import {
   validateRes,
 } from "./authFunctions";
 import { checkPresence } from "./cards";
+import { IconConsultant, IconFullTime, IconFreelance } from "../assets/images";
 
 export const createPost = async (dataObject, url) => {
   const token = getUserDataObject("token");
@@ -210,3 +211,51 @@ export async function deleteMsgsWithUser(user_id) {
 
   return validateRes(response, result);
 }
+
+export async function workProfileFunction() {
+  const { response, result } = await callApi(
+    "GET",
+    "public/read-box/1?type=work_profile"
+  );
+
+  return validateRes(response, result);
+}
+
+export async function serviceTypeFunction() {
+  const { response, result } = await callApi(
+    "GET",
+    "public/read-box/1?type=service_type"
+  );
+
+  return validateRes(response, result);
+}
+
+export const jobRoles = [
+  {
+    jobName: "full-time",
+    jobImage: IconFullTime,
+  },
+  {
+    jobName: "consultant",
+    jobImage: IconConsultant,
+  },
+  {
+    jobName: "internship",
+    jobImage: IconFreelance,
+  },
+  {
+    jobName: "freelance",
+    jobImage: IconFreelance,
+  },
+];
+
+export const experienceOptions = [
+  "0-1 year of experience",
+  "1-3 years of experience",
+  "3-5 years of experience",
+  "5-10 years of experience",
+  "10-15 years of experience",
+  "15-20 years of experience",
+  "20-30 years of experience",
+  ">30 years of experience",
+];
