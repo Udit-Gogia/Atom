@@ -36,10 +36,10 @@ export default function Message() {
 
     async function getMsgCount() {
       const res = await fetchUnreadMessageCount(userInfo?.id);
-      setUnreadMsgCount(res[0]?.count);
+      return setUnreadMsgCount(res[0]?.count);
     }
     getMsgCount();
-  }, [chatlist]);
+  }, []);
 
   async function getAllMessages() {
     pageNumber = 1;
@@ -88,12 +88,10 @@ export default function Message() {
         chatsWith.push(chatDetails);
         setChatList(chatsWith);
 
-        Array.isArray(chatRes) && checkPresence(chatRes)
+        return Array.isArray(chatRes) && checkPresence(chatRes)
           ? setChatList(chatsWith)
           : setHasMore(false);
       });
-
-    return;
   }
   const getMoreMessages = async () => {
     ++pageNumber;
@@ -107,7 +105,7 @@ export default function Message() {
     checkPresence(result) && Array.isArray(result)
       ? setChatList((prevChats) => [...new Set([...prevChats, ...result])])
       : setHasMore(false);
-    setPageNumber(pageNumber);
+    return setPageNumber(pageNumber);
   };
 
   return (
@@ -195,12 +193,14 @@ export default function Message() {
           showChat ? "" : "hidden"
         } basis-4/12 flex flex-col gap-4 border-2 border-neutral-300 rounded-lg sm:mx-auto bg-white shadow-sm sm:w-full md:m-4 max-w-[40vw]`}
       >
-        <ShowChatCard
-          showChat={showChat}
-          setShowChat={setShowChat}
-          showChatsWith={showChatsWith}
-          setShowChatsWith={setShowChatsWith}
-        />
+        {showChat ? (
+          <ShowChatCard
+            showChat={showChat}
+            setShowChat={setShowChat}
+            showChatsWith={showChatsWith}
+            setShowChatsWith={setShowChatsWith}
+          />
+        ) : null}
       </div>
     </div>
   );

@@ -347,21 +347,20 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
     const { id } = userInfo;
     setUserId(id);
 
-    // updateUnreadMessageCount();
-  }, [showChatsWith.username, showChatsWith.id]);
+    updateUnreadMessageCount();
+  }, [showChatsWith?.username, showChatsWith?.id]);
 
   const updateUnreadMessageCount = async () => {
-    const { token } = getUserDataObject();
     console.log("inside updateUnreadMessageCount");
+    const { token } = getUserDataObject();
 
     if (checkPresence(showChatsWith?.id)) {
-      await callApi(
+      return await callApi(
         "UPDATE",
         `private/self/update-message-thread-mark-read/${showChatsWith?.id}`,
         token
       );
     }
-    return;
   };
 
   const renderChats = async () => {
