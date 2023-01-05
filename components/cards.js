@@ -356,7 +356,7 @@ export function ShowChatCard({ showChat, setShowChat, showChatsWith }) {
 
     if (checkPresence(showChatsWith?.id)) {
       return await callApi(
-        "UPDATE",
+        "PUT",
         `private/self/update-message-thread-mark-read/${showChatsWith?.id}`,
         token
       );
