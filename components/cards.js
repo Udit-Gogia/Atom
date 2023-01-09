@@ -310,7 +310,7 @@ export function ChatCard({
               textOverflow: "ellipsis",
               overflow: "hidden",
               width: "26rem",
-              whiteSpace: "pre",
+              whiteSpace: "nowrap",
             }}
           >
             {description}
